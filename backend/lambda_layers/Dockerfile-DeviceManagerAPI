@@ -1,0 +1,6 @@
+FROM public.ecr.aws/lambda/python:3.12
+# Install dependencies
+COPY functions/product_manager/requirements.txt .
+
+RUN pip install -r requirements.txt -t /asset-output/python
+# Lambda layers need to put packages under `/python`

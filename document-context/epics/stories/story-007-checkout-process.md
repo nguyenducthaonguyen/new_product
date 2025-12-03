@@ -76,22 +76,73 @@
 ---
 
 ## 2. Business Rules
--   User phải đăng nhập để checkout.
--   Shipping cost được tính dựa trên shipping method đã chọn.
+-   User có thể checkout với hoặc không đăng nhập (guest checkout supported).
+-   Shipping cost được tính dựa trên shipping method đã chọn (Standard: $0, Express: $10, Overnight: $25).
 -   Order được tạo với status "pending" ban đầu.
 -   Sau khi order thành công, cart được clear.
+-   Order được tạo với `product_variant_id` và `sku` (không dùng `product_id`).
+-   Order bao gồm `total_product` (tổng giá sản phẩm) và `cost_ship` (phí vận chuyển) riêng biệt.
 
 ---
 
 ## 3. Implementation Status
 
-### ⏳ Pending Features
-- **Checkout Page:** Chưa implement
-- **Shipping Form:** Chưa implement
-- **Payment Integration:** Chưa implement
-- **Order Creation API:** Chưa implement
-- **Order Confirmation Page:** Chưa implement
+### ✅ Completed Features
+- **Checkout Page:** ✅ Implemented (`/checkout`)
+  - Server component với cart validation
+  - Redirect to `/cart` nếu cart empty
+  - Layout: Header → Checkout Form → Footer
+- **Shipping Form:** ✅ Implemented
+  - Component: `ShippingForm` (`frontend/src/components/checkout/shipping-form.tsx`)
+  - Fields: Full Name, Email, Phone, Address, City, Postal Code, Country
+  - Validation với Zod schema
+- **Shipping Method Selection:** ✅ Implemented
+  - Component: `ShippingMethodSelection` (`frontend/src/components/checkout/shipping-method-selection.tsx`)
+  - 3 options: Standard (free), Express ($10), Overnight ($25)
+  - Radio buttons với cost display
+- **Payment Method Selection:** ✅ Implemented
+  - Component: `PaymentMethodSelection` (`frontend/src/components/checkout/payment-method-selection.tsx`)
+  - 3 options: Credit Card, PayPal, Bank Transfer
+  - Radio buttons (payment processing chưa implement)
+- **Order Review:** ✅ Implemented
+  - Component: `OrderReview` (`frontend/src/components/checkout/order-review.tsx`)
+  - Displays cart items với image, name, quantity, price
+  - Shows subtotal, shipping cost, total
+- **Order Creation API:** ✅ Implemented
+  - Backend: `POST /api/v1/orders/checkout`
+  - Endpoint: `backend/functions/product_manager/app/api/v1/order.py`
+  - Service: `OrderService.create_checkout_order()`
+  - Repository: `OrderRepository.create_order_with_items()`
+  - Features:
+    - Validates cart items và stock
+    - Calculates `total_product` và `cost_ship`
+    - Creates order với `product_variant_id` và `sku`
+    - Clears cart after successful order
+    - Supports both authenticated và guest checkout
+- **Order Confirmation Page:** ✅ Implemented
+  - Page: `/orders/[orderId]/confirmation`
+  - Component: `frontend/src/app/[locale]/orders/[orderId]/confirmation/page.tsx`
+  - Displays order details, shipping info, order items, totals
+  - Shows order number, status, created date
 
 ### 📝 Technical Notes
-- Pending: Checkout page component, shipping form, payment form, order API integration
+- **Frontend Components:**
+  - `CheckoutForm`: Main form orchestrator với react-hook-form
+  - `ShippingForm`: Shipping information fields
+  - `ShippingMethodSelection`: Radio group for shipping options
+  - `PaymentMethodSelection`: Radio group for payment options
+  - `OrderReview`: Order summary với cart items và totals
+- **Server Actions:**
+  - `createOrder()`: `frontend/src/actions/order-action.ts`
+  - `getOrder()`: Fetch order details for confirmation page
+- **Entities:**
+  - `ShippingInfoSchema`, `CreateOrderRequestSchema`, `OrderSchema`: `frontend/src/entities/order.ts`
+- **Backend:**
+  - API: `POST /api/v1/orders/checkout`
+  - Models: `Order`, `OrderItem` (với `product_variant_id`, `sku`, `total_product`, `cost_ship`)
+  - Service: `OrderService.create_checkout_order()`
+  - Repository: `OrderRepository.create_order_with_items()`
+- **Database:**
+  - `orders` table: `total_product`, `cost_ship` columns
+  - `order_items` table: `product_variant_id`, `sku` columns (removed `product_id`)
 

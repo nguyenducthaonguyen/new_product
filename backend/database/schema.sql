@@ -157,6 +157,8 @@ CREATE TABLE IF NOT EXISTS orders (
     order_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     status VARCHAR(20) NOT NULL DEFAULT 'pending',
     total NUMERIC(12, 2) NOT NULL DEFAULT 0,
+    total_product NUMERIC(12, 2) NOT NULL DEFAULT 0,
+    cost_ship NUMERIC(12, 2) NOT NULL DEFAULT 0,
     delivery_info JSONB,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -168,7 +170,9 @@ CREATE TABLE IF NOT EXISTS orders (
     CONSTRAINT chk_order_status CHECK (
         status IN ('pending', 'paid', 'shipped', 'completed', 'cancelled')
     ),
-    CONSTRAINT chk_order_total CHECK (total >= 0)
+    CONSTRAINT chk_order_total CHECK (total >= 0),
+    CONSTRAINT chk_order_total_product CHECK (total_product >= 0),
+    CONSTRAINT chk_order_cost_ship CHECK (cost_ship >= 0)
 );
 
 -- Indexes for orders
@@ -184,7 +188,8 @@ CREATE INDEX IF NOT EXISTS idx_orders_created_at ON orders(created_at);
 CREATE TABLE IF NOT EXISTS order_items (
     id SERIAL PRIMARY KEY,
     order_id INTEGER NOT NULL,
-    product_id INTEGER NOT NULL,
+    product_variant_id INTEGER NOT NULL,
+    sku VARCHAR(100) NOT NULL,
     quantity INTEGER NOT NULL,
     price NUMERIC(10, 2) NOT NULL,
     
@@ -192,9 +197,9 @@ CREATE TABLE IF NOT EXISTS order_items (
         FOREIGN KEY (order_id) 
         REFERENCES orders(id) 
         ON DELETE CASCADE,
-    CONSTRAINT fk_order_item_product 
-        FOREIGN KEY (product_id) 
-        REFERENCES products(id) 
+    CONSTRAINT fk_order_item_product_variant 
+        FOREIGN KEY (product_variant_id) 
+        REFERENCES product_variants(id) 
         ON DELETE RESTRICT,
     CONSTRAINT chk_order_item_quantity CHECK (quantity > 0),
     CONSTRAINT chk_order_item_price CHECK (price >= 0)
@@ -202,7 +207,8 @@ CREATE TABLE IF NOT EXISTS order_items (
 
 -- Indexes for order_items
 CREATE INDEX IF NOT EXISTS idx_order_items_order_id ON order_items(order_id);
-CREATE INDEX IF NOT EXISTS idx_order_items_product_id ON order_items(product_id);
+CREATE INDEX IF NOT EXISTS idx_order_items_product_variant_id ON order_items(product_variant_id);
+CREATE INDEX IF NOT EXISTS idx_order_items_sku ON order_items(sku);
 
 -- ============================================================================
 -- Table: access_token_log

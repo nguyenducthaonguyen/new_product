@@ -280,12 +280,12 @@ Checkout Page (Server Component)
 
 ### 3.1. Create Order
 
-**Endpoint:** `POST /api/v1/orders`
+**Endpoint:** `POST /api/v1/orders/checkout`
 
 **Request Headers:**
-- `Authorization: Bearer {access_token}` (required if authenticated)
-- `X-Session-ID: {session_id}` (required for guest)
+- `Authorization: Bearer {access_token}` (optional, for authenticated users)
 - `Content-Type: application/json`
+- Session ID handled via cookies (for guest checkout)
 
 **Request Body:**
 ```json
@@ -305,14 +305,14 @@ Checkout Page (Server Component)
 }
 ```
 
-**Response (200):**
+**Response (201):**
 ```json
 {
   "status_code": 200,
   "message": "Order created successfully",
   "data": {
     "order_id": "order_123",
-    "order_number": "ORD-2024-001",
+    "order_number": "ORD-000123",
     "status": "pending",
     "total_amount": 309.97,
     "shipping_cost": 10.00,
@@ -324,15 +324,29 @@ Checkout Page (Server Component)
 **Order Schema:**
 ```typescript
 {
-  order_id: string;
-  order_number: string;
-  status: string; // "pending" | "confirmed" | "shipped" | "delivered" | "cancelled"
-  total_amount: number;
-  shipping_cost: number;
-  tax: number;
-  created_at: string;
+  order_id: string; // Format: "order_{id}"
+  order_number: string; // Format: "ORD-{id:06d}"
+  status: string; // "pending" | "paid" | "shipped" | "completed" | "cancelled"
+  total_amount: number; // total_product + cost_ship
+  shipping_cost: number; // Based on shipping_method
+  created_at: string; // ISO 8601 datetime
 }
 ```
+
+**Backend Implementation:**
+- **Endpoint:** `POST /api/v1/orders/checkout`
+- **Service:** `OrderService.create_checkout_order()`
+- **Repository:** `OrderRepository.create_order_with_items()`
+- **Database:**
+  - `orders` table: `total_product`, `cost_ship` columns
+  - `order_items` table: `product_variant_id`, `sku` columns
+- **Features:**
+  - Validates cart items và stock availability
+  - Calculates `total_product` (sum of cart items)
+  - Calculates `cost_ship` based on `shipping_method`
+  - Creates order với `product_variant_id` và `sku` from cart
+  - Clears cart after successful order creation
+  - Supports both authenticated và guest checkout
 
 **Error Responses:**
 - **400:** Bad Request (invalid data, missing fields)
@@ -414,146 +428,175 @@ Checkout Page (Server Component)
 ## 4. 📝 Acceptance Criteria
 
 ### 4.1. Checkout Page Access
-- [ ] **AC-1.1:** Click "Checkout" từ cart page navigate đến `/checkout`
-- [ ] **AC-1.2:** Checkout page hiển thị Header và Footer
-- [ ] **AC-1.3:** If cart empty, redirect to `/cart` với message
-- [ ] **AC-1.4:** If not authenticated và login required, redirect to `/login`
+- [x] **AC-1.1:** Click "Checkout" từ cart page navigate đến `/checkout` ✅
+- [x] **AC-1.2:** Checkout page hiển thị Header và Footer ✅
+- [x] **AC-1.3:** If cart empty, redirect to `/cart` với message ✅
+- [x] **AC-1.4:** Guest checkout supported (không require login) ✅
 
 ### 4.2. Shipping Information
-- [ ] **AC-2.1:** Form hiển thị all required fields (Full Name, Email, Phone, Address, City, Postal Code, Country)
-- [ ] **AC-2.2:** All fields marked as required (*)
-- [ ] **AC-2.3:** Email format validation
-- [ ] **AC-2.4:** Phone format validation (optional)
-- [ ] **AC-2.5:** Form validation prevents submit if fields invalid
-- [ ] **AC-2.6:** Error messages hiển thị for invalid fields
+- [x] **AC-2.1:** Form hiển thị all required fields (Full Name, Email, Phone, Address, City, Postal Code, Country) ✅
+- [x] **AC-2.2:** All fields marked as required (*) ✅
+- [x] **AC-2.3:** Email format validation ✅
+- [x] **AC-2.4:** Phone format validation (optional) ✅
+- [x] **AC-2.5:** Form validation prevents submit if fields invalid ✅
+- [x] **AC-2.6:** Error messages hiển thị for invalid fields ✅
 
 ### 4.3. Shipping Method Selection
-- [ ] **AC-3.1:** 3 shipping methods hiển thị (Standard, Express, Overnight)
-- [ ] **AC-3.2:** Each method shows name, delivery time, và cost
-- [ ] **AC-3.3:** Radio buttons for selection
-- [ ] **AC-3.4:** User must select one method
-- [ ] **AC-3.5:** Selected method highlighted
-- [ ] **AC-3.6:** Shipping cost updates order total
+- [x] **AC-3.1:** 3 shipping methods hiển thị (Standard, Express, Overnight) ✅
+- [x] **AC-3.2:** Each method shows name, delivery time, và cost ✅
+- [x] **AC-3.3:** Radio buttons for selection ✅
+- [x] **AC-3.4:** User must select one method ✅
+- [x] **AC-3.5:** Selected method highlighted ✅
+- [x] **AC-3.6:** Shipping cost updates order total ✅
 
 ### 4.4. Payment Method Selection
-- [ ] **AC-4.1:** 3 payment methods hiển thị (Credit Card, PayPal, Bank Transfer)
-- [ ] **AC-4.2:** Radio buttons for selection
-- [ ] **AC-4.3:** User must select one method
-- [ ] **AC-4.4:** Selected method highlighted
-- [ ] **AC-4.5:** Payment form details (future implementation)
+- [x] **AC-4.1:** 3 payment methods hiển thị (Credit Card, PayPal, Bank Transfer) ✅
+- [x] **AC-4.2:** Radio buttons for selection ✅
+- [x] **AC-4.3:** User must select one method ✅
+- [x] **AC-4.4:** Selected method highlighted ✅
+- [ ] **AC-4.5:** Payment form details (future implementation) ⏳
 
 ### 4.5. Order Review
-- [ ] **AC-5.1:** Order review hiển thị all cart items
-- [ ] **AC-5.2:** Each item shows name, quantity, price, subtotal
-- [ ] **AC-5.3:** Subtotal calculated (cart total)
-- [ ] **AC-5.4:** Shipping cost hiển thị (based on selected method)
-- [ ] **AC-5.5:** Tax hiển thị (if applicable)
-- [ ] **AC-5.6:** Total amount calculated correctly
+- [x] **AC-5.1:** Order review hiển thị all cart items ✅
+- [x] **AC-5.2:** Each item shows name, quantity, price, subtotal ✅
+- [x] **AC-5.3:** Subtotal calculated (cart total) ✅
+- [x] **AC-5.4:** Shipping cost hiển thị (based on selected method) ✅
+- [x] **AC-5.5:** Tax hiển thị (currently $0, if applicable) ✅
+- [x] **AC-5.6:** Total amount calculated correctly ✅
 
 ### 4.6. Place Order
-- [ ] **AC-6.1:** "Place Order" button disabled until all fields filled
-- [ ] **AC-6.2:** Validate all fields before submit
-- [ ] **AC-6.3:** API call `POST /api/v1/orders` với all data
-- [ ] **AC-6.4:** Loading state hiển thị during order creation
-- [ ] **AC-6.5:** On success: Clear cart, redirect to `/orders/{orderId}/confirmation`
-- [ ] **AC-6.6:** On error: Show error message, keep cart, allow retry
+- [x] **AC-6.1:** "Place Order" button disabled until all fields filled ✅
+- [x] **AC-6.2:** Validate all fields before submit ✅
+- [x] **AC-6.3:** API call `POST /api/v1/orders/checkout` với all data ✅
+- [x] **AC-6.4:** Loading state hiển thị during order creation ✅
+- [x] **AC-6.5:** On success: Clear cart, redirect to `/orders/{orderId}/confirmation` ✅
+- [x] **AC-6.6:** On error: Show error message, keep cart, allow retry ✅
 
 ---
 
 ## 5. 🛠️ Implementation Details
 
-### 5.1. Components (To be created)
+### 5.1. Components ✅ **COMPLETED**
 
 **CheckoutForm Component:**
-- **File:** `frontend/src/components/checkout/checkout-form.tsx` (to be created)
+- **File:** `frontend/src/components/checkout/checkout-form.tsx` ✅
 - **Type:** Client Component (`'use client'`)
 - **State:**
-  - `shippingInfo: ShippingInfo` - Shipping form data
-  - `shippingMethod: string` - Selected shipping method
-  - `paymentMethod: string` - Selected payment method
-  - `isSubmitting: boolean` - Loading state
-  - `errors: FormErrors` - Validation errors
+  - Uses `react-hook-form` với `useForm` hook
+  - `isPending` state từ `useTransition` for loading
+  - Form validation với `zodResolver` và `CreateOrderRequestSchema`
 
 - **Features:**
-  - Multi-step form hoặc single-page form
+  - Single-page form layout (all sections visible)
   - Form validation với Zod
-  - Submit order creation
-  - Error handling
+  - Submit order creation via `createOrder()` server action
+  - Error handling với toast notifications
+  - Cart clearing after successful order
+  - Redirect to confirmation page
 
 **ShippingForm Component:**
-- **File:** `frontend/src/components/checkout/shipping-form.tsx` (to be created)
+- **File:** `frontend/src/components/checkout/shipping-form.tsx` ✅
 - **Type:** Client Component
 - **Features:**
-  - Shipping information fields
-  - Form validation
-  - Error messages
+  - All shipping information fields (Full Name, Email, Phone, Address, City, Postal Code, Country)
+  - Form validation với `react-hook-form`
+  - Error messages với `FormMessage`
+  - Uses Shadcn UI components (`Input`, `Textarea`, `Select`)
+
+**ShippingMethodSelection Component:**
+- **File:** `frontend/src/components/checkout/shipping-method-selection.tsx` ✅
+- **Type:** Client Component
+- **Features:**
+  - Radio group với 3 options (Standard, Express, Overnight)
+  - Shows delivery time và cost for each method
+  - Uses Shadcn UI `RadioGroup` component
+
+**PaymentMethodSelection Component:**
+- **File:** `frontend/src/components/checkout/payment-method-selection.tsx` ✅
+- **Type:** Client Component
+- **Features:**
+  - Radio group với 3 options (Credit Card, PayPal, Bank Transfer)
+  - Shows description for each method
+  - Uses Shadcn UI `RadioGroup` component
 
 **OrderReview Component:**
-- **File:** `frontend/src/components/checkout/order-review.tsx` (to be created)
+- **File:** `frontend/src/components/checkout/order-review.tsx` ✅
 - **Type:** Client Component
 - **Features:**
-  - Display cart items
-  - Calculate và display totals
-  - Show shipping cost
-  - Show tax (if applicable)
+  - Displays cart items với image, name, quantity, price
+  - Shows subtotal, shipping cost, total
+  - Real-time calculation based on selected shipping method
 
-### 5.2. Server Actions (To be created)
+### 5.2. Server Actions ✅ **COMPLETED**
 
 **createOrder Function:**
-- **File:** `frontend/src/actions/order-action.ts` (to be created)
+- **File:** `frontend/src/actions/order-action.ts` ✅
 - **Type:** Server Action (`'use server'`)
 - **Signature:**
   ```typescript
   async function createOrder(request: CreateOrderRequest): Promise<{
     success: boolean;
-    data: Order | null;
+    data: OrderResponse['data'] | null;
     error?: string;
     errorCode?: string;
   }>
   ```
 - **Features:**
-  - Call `POST /api/v1/orders`
-  - Validate request data
-  - Handle errors
-  - Clear cart on success
+  - Call `POST /api/v1/orders/checkout`
+  - Validate request data với `OrderResponseSchema`
+  - Handle errors với detailed error messages
+  - Returns order data với `order_id`, `order_number`, `status`, `total_amount`, `shipping_cost`, `created_at`
 
-### 5.3. Pages (To be created)
+**getOrder Function:**
+- **File:** `frontend/src/actions/order-action.ts` ✅
+- **Type:** Server Action (`'use server'`)
+- **Features:**
+  - Call `GET /api/v1/orders/{orderId}`
+  - Validate response với `OrderSchema`
+  - Handle type conversions (datetime, Decimal)
+
+### 5.3. Pages ✅ **COMPLETED**
 
 **Checkout Page:**
-- **File:** `frontend/src/app/[locale]/checkout/page.tsx` (to be created)
+- **File:** `frontend/src/app/[locale]/checkout/page.tsx` ✅
 - **Type:** Server Component
 - **Implementation:**
   ```typescript
-  const cart = await getCart();
-  if (!cart.data || cart.data.items.length === 0) {
+  const result = await getCart();
+  if (!result.success || !result.data || result.data.items.length === 0) {
     redirect('/cart');
   }
   return (
-    <div>
+    <div className="flex flex-col min-h-screen">
       <HomeHeader />
-      <CheckoutForm initialCart={cart.data} />
+      <main className="flex-1">
+        <CheckoutForm initialCart={result.data} />
+      </main>
       <Footer />
     </div>
   );
   ```
 
 **Order Confirmation Page:**
-- **File:** `frontend/src/app/[locale]/orders/[orderId]/confirmation/page.tsx` (to be created)
+- **File:** `frontend/src/app/[locale]/orders/[orderId]/confirmation/page.tsx` ✅
 - **Type:** Server Component
 - **Features:**
-  - Display order details
-  - Show order number
-  - Show order status
-  - Show total amount
+  - Display order details với order number, status, created date
+  - Show shipping information
+  - Show order items với product name, quantity, price
+  - Show totals (subtotal, shipping, total)
+  - "Continue Shopping" button
 
-### 5.4. Entities (To be created)
+### 5.4. Entities ✅ **COMPLETED**
 
 **Order Types:**
-- **File:** `frontend/src/entities/order.ts` (to be created)
+- **File:** `frontend/src/entities/order.ts` ✅
 - **Schemas:**
-  - `ShippingInfoSchema` - Shipping information
-  - `CreateOrderRequestSchema` - Order creation request
-  - `OrderSchema` - Order response
+  - `ShippingInfoSchema` - Shipping information với validation ✅
+  - `CreateOrderRequestSchema` - Order creation request ✅
+  - `OrderSchema` - Order response ✅
+  - `OrderItemSchema` - Order item với `product_variant_id` và `sku` ✅
+  - `OrderResponseSchema` - Order creation response ✅
 
 **ShippingInfo Type:**
 ```typescript
@@ -575,6 +618,18 @@ Checkout Page (Server Component)
   shipping_method: "standard" | "express" | "overnight";
   payment_method: "credit_card" | "paypal" | "bank_transfer";
   cart_id: string;
+}
+```
+
+**OrderItem Type:**
+```typescript
+{
+  id: number;
+  product_variant_id: number;
+  sku: string;
+  product_name: string | null;
+  quantity: number;
+  price: number;
 }
 ```
 
@@ -631,32 +686,65 @@ Checkout Page (Server Component)
 
 ---
 
-## 8. 🚧 Implementation Roadmap
+## 8. ✅ Implementation Status
 
-### Phase 1: Basic Checkout Page (Priority: High)
-1. Create checkout page component (`/checkout`)
-2. Create shipping information form
-3. Create shipping method selection
-4. Create payment method selection
-5. Create order review section
-6. Backend: Implement `POST /api/v1/orders` endpoint
-7. Create order confirmation page
+### Phase 1: Basic Checkout Page ✅ **COMPLETED**
+1. ✅ Create checkout page component (`/checkout`)
+2. ✅ Create shipping information form
+3. ✅ Create shipping method selection
+4. ✅ Create payment method selection
+5. ✅ Create order review section
+6. ✅ Backend: Implement `POST /api/v1/orders/checkout` endpoint
+7. ✅ Create order confirmation page
 
-### Phase 2: Form Validation & Error Handling (Priority: High)
-1. Implement form validation với Zod
-2. Add error messages
-3. Handle API errors
-4. Handle network errors
+### Phase 2: Form Validation & Error Handling ✅ **COMPLETED**
+1. ✅ Implement form validation với Zod
+2. ✅ Add error messages
+3. ✅ Handle API errors
+4. ✅ Handle network errors
 
-### Phase 3: Payment Integration (Priority: Medium)
-1. Credit card form integration
-2. PayPal integration
-3. Bank transfer details
-4. Payment processing
+### Phase 3: Payment Integration ⏳ **PENDING**
+1. ⏳ Credit card form integration
+2. ⏳ PayPal integration
+3. ⏳ Bank transfer details
+4. ⏳ Payment processing
 
-### Phase 4: Order Management (Priority: Medium)
-1. Order history page
-2. Order detail page
-3. Order tracking
-4. Order cancellation
+### Phase 4: Order Management ⏳ **PENDING**
+1. ⏳ Order history page
+2. ⏳ Order detail page
+3. ⏳ Order tracking
+4. ⏳ Order cancellation
+
+---
+
+## 9. 📊 Implementation Summary
+
+### ✅ Completed Implementation
+- **Frontend Components:** All checkout components implemented
+  - `CheckoutForm`: Main form orchestrator với react-hook-form
+  - `ShippingForm`: Shipping information fields với validation
+  - `ShippingMethodSelection`: Radio group for shipping options
+  - `PaymentMethodSelection`: Radio group for payment options
+  - `OrderReview`: Order summary với cart items và totals
+- **Backend API:** Order creation endpoint với full validation
+  - `POST /api/v1/orders/checkout`: Create order from cart
+  - `GET /api/v1/orders/{orderId}`: Get order details
+  - `OrderService.create_checkout_order()`: Business logic
+  - `OrderRepository.create_order_with_items()`: Database operations
+- **Database Schema:** Updated với improved design
+  - `orders` table: `total_product`, `cost_ship` columns
+  - `order_items` table: `product_variant_id`, `sku` columns (removed `product_id`)
+- **Form Validation:** Complete với Zod schemas
+  - `ShippingInfoSchema`: Shipping information validation
+  - `CreateOrderRequestSchema`: Order request validation
+  - `OrderSchema`: Order response validation
+- **Error Handling:** Comprehensive error handling với user-friendly messages
+- **Cart Integration:** Seamless integration với cart management
+- **Order Confirmation:** Full order details display với shipping info và totals
+
+### ⏳ Future Enhancements
+- Payment processing integration (Credit Card, PayPal, Bank Transfer)
+- Order history và tracking
+- Order cancellation/return functionality
+- Email notifications (backend ready, frontend display)
 

@@ -91,11 +91,23 @@
     - Real-time cart badge update trên header
     - Product information (name, image) trong cart items
 
-- **EP-02-002: Checkout Process** ⏳ **PENDING**
-  - **US-CHECKOUT-01: Quy trình thanh toán** ⏳ (Story: `stories/story-007-checkout-process.md`)
+- **EP-02-002: Checkout Process** ✅ **COMPLETED**
+  - **US-CHECKOUT-01: Quy trình thanh toán** ✅ (Story: `stories/story-007-checkout-process.md`)
   - **Feature Spec:** `features/feature-007-checkout-process-logic.md`
-  - Nhập địa chỉ, chọn shipping method, thanh toán, xác nhận đơn
-  - Chưa implement
+  - Components: `CheckoutForm`, `ShippingForm`, `ShippingMethodSelection`, `PaymentMethodSelection`, `OrderReview`
+  - Pages: `/checkout`, `/orders/[orderId]/confirmation`
+  - Server Actions: `createOrder()`, `getOrder()`
+  - API: `POST /api/v1/orders/checkout`, `GET /api/v1/orders/{orderId}`
+  - Features:
+    - Shipping information form với validation
+    - Shipping method selection (Standard, Express, Overnight)
+    - Payment method selection (Credit Card, PayPal, Bank Transfer)
+    - Order review với cart items và totals
+    - Order creation từ cart với `product_variant_id` và `sku`
+    - Order confirmation page với order details
+    - Cart clearing after successful order
+    - Guest checkout support
+    - Database: `orders` với `total_product`, `cost_ship`; `order_items` với `product_variant_id`, `sku`
 
 - **EP-02-003: Guest Checkout** ⏳ **PENDING**
   - **US-CHECKOUT-02: Thanh toán không cần đăng ký** ⏳ (Story: `stories/story-008-guest-checkout.md`)
@@ -177,23 +189,23 @@
 
 ## 📊 Implementation Summary
 
-### ✅ Completed Features (9/14)
+### ✅ Completed Features (10/14)
 1. **Product Listing** - Homepage và Shop page
 2. **Product Detail View** - Full implementation với variant selection
 3. **Header Navigation** - Complete với user authentication integration
 4. **Homepage Sections** - Banner, Features, Testimonials
 5. **Smart Search** - Search page, suggestions, history
 6. **Cart Management** - Full CRUD operations
-7. **Authentication** - Login, Logout, Token Management, Auto-refresh
-8. **About Page** - Static content page
-9. **Contact Page** - With contact form
+7. **Checkout Process** - Complete checkout flow với order creation và confirmation
+8. **Authentication** - Login, Logout, Token Management, Auto-refresh
+9. **About Page** - Static content page
+10. **Contact Page** - With contact form
 
-### ⏳ Pending Features (5/14)
-1. **Checkout Process** - Chưa implement
-2. **Guest Checkout** - Chưa implement (nhưng guest cart đã support)
-3. **Profile Management** - Chưa implement
-4. **Order Tracking** - Chưa implement
-5. **Order Cancellation/Return** - Chưa implement
+### ⏳ Pending Features (4/14)
+1. **Guest Checkout** - Chưa implement (nhưng guest cart và checkout đã support)
+2. **Profile Management** - Chưa implement
+3. **Order Tracking** - Chưa implement
+4. **Order Cancellation/Return** - Chưa implement
 
 ### 🛠️ Technical Stack
 - **Frontend Framework:** Next.js 14+ (App Router)
@@ -209,7 +221,8 @@
 - **Product:** `ProductList`, `ProductCard`, `ProductDetailView`
 - **Search:** `SearchSuggestions`, `SearchPageClient`
 - **Cart:** `CartView`
+- **Checkout:** `CheckoutForm`, `ShippingForm`, `ShippingMethodSelection`, `PaymentMethodSelection`, `OrderReview`
 - **Auth:** `LoginForm`, `UserAvatar`
 - **Hooks:** `useSearchHistory`
-- **Pages:** Home, Shop, Product Detail, Cart, Search, About, Contact, Login
+- **Pages:** Home, Shop, Product Detail, Cart, Checkout, Order Confirmation, Search, About, Contact, Login
 

@@ -1,6 +1,8 @@
-import { notFound } from 'next/navigation';
 import { getTranslations } from 'next-intl/server';
+import { notFound } from 'next/navigation';
 import { getProductBySlug } from '@/actions/product-action';
+import { Footer } from '@/components/layout/footer';
+import { HomeHeader } from '@/components/home/home-header';
 import { ProductDetailView } from '@/components/product/product-detail-view';
 
 export async function generateMetadata(props: {
@@ -31,6 +33,15 @@ export default async function ProductDetailPage(props: {
     notFound();
   }
 
-  return <ProductDetailView product={result.data} />;
-}
+  return (
+    <div className="flex flex-col min-h-screen">
+      <div className="container mx-auto px-4 py-8">
+        <HomeHeader />
+      </div>
 
+      <ProductDetailView product={result.data} />
+
+      <Footer />
+    </div>
+  );
+}

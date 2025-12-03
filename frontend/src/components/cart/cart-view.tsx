@@ -1,22 +1,22 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { Trash2, Plus, Minus } from 'lucide-react';
-import Link from 'next/link';
 import type { Cart } from '@/entities/cart';
+import { Minus, Plus, Trash2 } from 'lucide-react';
+import Link from 'next/link';
+import { useEffect, useState } from 'react';
+import { toast } from 'sonner';
+import { getCart, removeCartItem, updateCartItem } from '@/actions/cart-action';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { useCartStore } from '@/stores/cart-store';
-import { updateCartItem, removeCartItem, getCart } from '@/actions/cart-action';
-import { toast } from 'sonner';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useCartStore } from '@/stores/cart-store';
 
-interface CartViewProps {
+type CartViewProps = {
   initialCart: Cart | null;
-}
+};
 
 export function CartView({ initialCart }: CartViewProps) {
-  const { cart, setCart, setLoading } = useCartStore();
+  const { cart, setCart } = useCartStore();
   const [isUpdating, setIsUpdating] = useState<string | null>(null);
   const currentCart = cart || initialCart;
 
@@ -48,7 +48,7 @@ export function CartView({ initialCart }: CartViewProps) {
       } else {
         toast.error(result.error || 'Failed to update cart');
       }
-    } catch (error) {
+    } catch {
       toast.error('An error occurred');
     } finally {
       setIsUpdating(null);
@@ -66,7 +66,7 @@ export function CartView({ initialCart }: CartViewProps) {
       } else {
         toast.error(result.error || 'Failed to remove item');
       }
-    } catch (error) {
+    } catch {
       toast.error('An error occurred');
     } finally {
       setIsUpdating(null);
@@ -102,14 +102,21 @@ export function CartView({ initialCart }: CartViewProps) {
       <h1 className="text-3xl font-bold mb-8">Shopping Cart</h1>
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2 space-y-4">
-          {currentCart.items.map((item) => (
+          {currentCart.items.map(item => (
             <Card key={item.itemId}>
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div className="flex-1">
-                    <h3 className="font-semibold mb-1">SKU: {item.sku}</h3>
+                    <h3 className="font-semibold mb-1">
+                      SKU:
+                      {item.sku}
+                    </h3>
                     <p className="text-muted-foreground">
-                      USD {item.price.toFixed(2)} each
+                      USD
+                      {' '}
+                      {item.price.toFixed(2)}
+                      {' '}
+                      each
                     </p>
                   </div>
                   <div className="flex items-center gap-4">
@@ -134,7 +141,9 @@ export function CartView({ initialCart }: CartViewProps) {
                     </div>
                     <div className="text-right min-w-[100px]">
                       <p className="font-semibold">
-                        USD {(item.price * item.quantity).toFixed(2)}
+                        USD
+                        {' '}
+                        {(item.price * item.quantity).toFixed(2)}
                       </p>
                     </div>
                     <Button
@@ -158,15 +167,25 @@ export function CartView({ initialCart }: CartViewProps) {
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex justify-between">
-                <span>Subtotal ({currentCart.total_items} items)</span>
+                <span>
+                  Subtotal (
+                  {currentCart.total_items}
+                  {' '}
+                  items)
+                </span>
                 <span className="font-semibold">
-                  USD {currentCart.total_price.toFixed(2)}
+                  USD
+                  {' '}
+                  {currentCart.total_price.toFixed(2)}
                 </span>
               </div>
               <div className="border-t pt-4">
                 <div className="flex justify-between text-lg font-bold">
                   <span>Total</span>
-                  <span>USD {currentCart.total_price.toFixed(2)}</span>
+                  <span>
+                    USD
+                    {currentCart.total_price.toFixed(2)}
+                  </span>
                 </div>
               </div>
               <Button className="w-full" size="lg" asChild>
@@ -184,4 +203,3 @@ export function CartView({ initialCart }: CartViewProps) {
     </div>
   );
 }
-

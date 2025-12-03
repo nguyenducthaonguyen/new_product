@@ -1,8 +1,8 @@
 'use server';
 
-import { httpClient } from '@/lib/http-client';
 import type { ProductDetail, ProductListItem } from '@/entities/product';
 import { ProductDetailSchema, ProductListItemSchema } from '@/entities/product';
+import { httpClient } from '@/lib/http-client';
 
 // Backend API base is already /api, so we use /v1/products
 const API_BASE = '/api/v1/products';
@@ -68,4 +68,3 @@ export async function getProductBySlug(slug: string) {
     };
   }
 }
-

@@ -60,12 +60,19 @@ document-context/
 ├── api/                          # Backend contracts
 │   └── backend-specs.md
 ├── epics/                        # Phân rã yêu cầu
-│   ├── list.md                   # Danh sách Epic
+│   ├── list.md                   # Danh sách Epic (với implementation status)
 │   └── stories/                  # User Stories (Cái "What")
-│       ├── story-001-product-detail.md
+│       ├── story-001-product-detail.md ✅ COMPLETED
+│       ├── story-002-auth-login.md ✅ COMPLETED
+│       ├── story-003-header.md ✅ COMPLETED
+│       ├── story-004-cart-management.md ✅ COMPLETED
 │       └── features/             # Feature Specs (Cái "How")
 │           ├── feature-001-product-detail-logic.md  # Business Logic & Data
-│           └── feature-001-product-detail-ui.md     # UI/UX Specs
+│           ├── feature-001-product-detail-ui.md     # UI/UX Specs
+│           ├── feature-002-auth-login-logic.md     # Login Logic
+│           ├── feature-002-auth-login-ui.md         # Login UI
+│           ├── feature-003-header-logic.md          # Header Logic
+│           └── feature-003-header-ui.md             # Header UI
 ├── templates/                    # Các template chuẩn
 │   ├── TASK_IMPLEMENTATION_TEMPLATE.md
 │   └── FEATURE_SPEC_TEMPLATE.md

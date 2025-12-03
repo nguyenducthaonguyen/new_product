@@ -1,8 +1,8 @@
+import type { Cart } from '@/entities/cart';
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import type { Cart, CartItem } from '@/entities/cart';
 
-interface CartState {
+type CartState = {
   cart: Cart | null;
   isLoading: boolean;
   error: string | null;
@@ -10,17 +10,17 @@ interface CartState {
   setLoading: (loading: boolean) => void;
   setError: (error: string | null) => void;
   clearCart: () => void;
-}
+};
 
 export const useCartStore = create<CartState>()(
   persist(
-    (set) => ({
+    set => ({
       cart: null,
       isLoading: false,
       error: null,
-      setCart: (cart) => set({ cart, error: null }),
-      setLoading: (isLoading) => set({ isLoading }),
-      setError: (error) => set({ error }),
+      setCart: cart => set({ cart, error: null }),
+      setLoading: isLoading => set({ isLoading }),
+      setError: error => set({ error }),
       clearCart: () => set({ cart: null, error: null }),
     }),
     {
@@ -28,4 +28,3 @@ export const useCartStore = create<CartState>()(
     },
   ),
 );
-

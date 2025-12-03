@@ -23,10 +23,16 @@ Trong trường hợp API chưa được implement, Frontend Developer (và AI) 
 - **GET** `/api/v1/products/{slug}` - Get product detail
 
 ### 2. Cart APIs
-- **GET** `/api/v1/cart` - Get current cart
-- **POST** `/api/v1/cart/items` - Add item to cart
+- **GET** `/api/v1/cart` - Get current cart with all items ✅ **IMPLEMENTED**
+- **POST** `/api/v1/cart/items` - Add item to cart (returns SimpleCartResponse) ✅ **IMPLEMENTED**
 - **PATCH** `/api/v1/cart/items/{itemId}` - Update quantity
 - **DELETE** `/api/v1/cart/items/{itemId}` - Remove item
+
+### 3. Authentication APIs
+- **POST** `/api/v1/auth/login` - Login với username/password ✅ **IMPLEMENTED**
+- **POST** `/api/v1/auth/refresh` - Refresh access token ✅ **IMPLEMENTED**
+- **GET** `/api/v1/auth/me` - Get current user info ✅ **IMPLEMENTED**
+- **POST** `/api/v1/auth/logout` - Logout (clear tokens) ✅ **IMPLEMENTED**
 
 ---
 

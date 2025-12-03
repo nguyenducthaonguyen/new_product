@@ -14,6 +14,12 @@ export const CartSchema = z.object({
   items: z.array(CartItemSchema),
 });
 
+export const SimpleCartSchema = z.object({
+  cart_id: z.string(),
+  total_items: z.number(),
+  total_price: z.number(),
+});
+
 export const AddToCartRequestSchema = z.object({
   sku: z.string(),
   quantity: z.number().min(1),
@@ -25,6 +31,6 @@ export const UpdateCartItemRequestSchema = z.object({
 
 export type CartItem = z.infer<typeof CartItemSchema>;
 export type Cart = z.infer<typeof CartSchema>;
+export type SimpleCart = z.infer<typeof SimpleCartSchema>;
 export type AddToCartRequest = z.infer<typeof AddToCartRequestSchema>;
 export type UpdateCartItemRequest = z.infer<typeof UpdateCartItemRequestSchema>;
-

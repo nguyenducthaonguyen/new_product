@@ -1,12 +1,14 @@
 {
-  "title": "Welcome back",
-  "sub_title": "Login with your Apple or Google account",
-  "email": "Email",
-  "email_placeholder": "m@example.com",
-  "password": "Password",
-  "password_placeholder": "Enter your password",
-  "sign_in": "Sign in",
-  "signing_in": "Signing in...",
-  "no_account": "Don't have an account?",
-  "sign_up": "Sign up"
+  "title": "ログイン",
+  "sub_title": "認証情報を入力してください",
+  "username": "ユーザー名",
+  "username_placeholder": "ユーザー名を入力",
+  "email": "メールアドレス",
+  "email_placeholder": "メールアドレスを入力",
+  "password": "パスワード",
+  "password_placeholder": "パスワードを入力",
+  "sign_in": "ログイン",
+  "signing_in": "ログイン中...",
+  "no_account": "アカウントをお持ちでないですか？",
+  "sign_up": "新規登録"
 }

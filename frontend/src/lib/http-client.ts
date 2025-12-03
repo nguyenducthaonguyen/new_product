@@ -108,8 +108,9 @@ export class HttpClient {
 
   /**
    * Makes an HTTP request with common error handling
+   * Automatically handles 401 errors by refreshing token and retrying
    */
-  private async request<T>(endpoint: string, config: RequestConfig = {}): Promise<ApiResponse<T>> {
+  private async request<T>(endpoint: string, config: RequestConfig = {}, retryCount = 0): Promise<ApiResponse<T>> {
     const {
       timeout = DEFAULT_CONFIG.timeout,
       baseURL = this.baseURL,
@@ -139,6 +140,7 @@ export class HttpClient {
     const fetchPromise = fetch(url, {
       ...fetchConfig,
       headers: mergedHeaders,
+      credentials: 'include', // Include cookies for refresh token
     });
 
     // Create timeout promise
@@ -163,6 +165,47 @@ export class HttpClient {
         responseData = null;
       }
 
+      // Handle 401 Unauthorized - Try to refresh token and retry
+      if (response.status === 401 && retryCount === 0) {
+        // Skip refresh for auth endpoints (login, refresh, register)
+        const isAuthEndpoint = endpoint.includes('/auth/login')
+          || endpoint.includes('/auth/refresh')
+          || endpoint.includes('/auth/register');
+
+        if (!isAuthEndpoint) {
+          logger.info('Access token expired, attempting to refresh...');
+          try {
+            // Import refresh function dynamically to avoid circular dependencies
+            const { refreshAccessToken } = await import('@/actions/refresh-action');
+            const refreshResult = await refreshAccessToken();
+
+            if (refreshResult.success && refreshResult.access_token) {
+              logger.info('Token refreshed successfully, retrying request...');
+              // Get new access token from cookies (backend sets it)
+              const { getAccessToken } = await import('@/lib/auth-cookies');
+              const newAccessToken = await getAccessToken();
+
+              if (newAccessToken) {
+                // Retry the request with new token (recursive call with retryCount = 1)
+                return this.request<T>(endpoint, {
+                  ...config,
+                  headers: {
+                    ...headers,
+                    Authorization: `Bearer ${newAccessToken}`,
+                  },
+                }, 1); // Set retryCount to 1 to prevent infinite loop
+              }
+            } else {
+              logger.error('Failed to refresh token:', refreshResult.error);
+              // Fall through to throw 401 error
+            }
+          } catch (refreshError) {
+            logger.error('Error during token refresh:', refreshError);
+            // Fall through to throw 401 error
+          }
+        }
+      }
+
       // Handle HTTP errors
       if (!response.ok) {
         const errorMessage = responseData?.message || responseData?.error || `HTTP ${response.status}`;
@@ -170,8 +213,11 @@ export class HttpClient {
       }
 
       // Return successful response
+      // Backend returns { status_code: 200, message: "...", data: {...} }
+      // So we check status_code or response.ok to determine success
+      const isSuccess = responseData?.status_code === 200 || response.ok;
       return {
-        success: responseData?.success,
+        success: isSuccess,
         message: responseData?.message,
         data: responseData?.data,
         meta: responseData?.meta,
@@ -209,10 +255,28 @@ export class HttpClient {
    * POST request
    */
   async post<T>(endpoint: string, data?: any, config: RequestConfig = {}): Promise<ApiResponse<T>> {
+    // Check if Content-Type is form-urlencoded
+    const headers = config.headers || {};
+    const defaultHeaders = DEFAULT_CONFIG.headers || {};
+    const contentType = (headers as Record<string, string>)['Content-Type']
+      || (headers as Record<string, string>)['content-type']
+      || (defaultHeaders as Record<string, string>)['Content-Type'];
+
+    // If Content-Type is form-urlencoded and data is a string, use it directly
+    // Otherwise, stringify JSON data
+    let body: string | undefined;
+    if (data) {
+      if (contentType?.includes('application/x-www-form-urlencoded') && typeof data === 'string') {
+        body = data; // Already form-urlencoded string
+      } else {
+        body = JSON.stringify(data);
+      }
+    }
+
     return this.request<T>(endpoint, {
       ...config,
       method: 'POST',
-      body: data ? JSON.stringify(data) : undefined,
+      body,
     });
   }
 

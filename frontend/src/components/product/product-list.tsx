@@ -1,13 +1,13 @@
 'use client';
 
-import { ProductCard } from './product-card';
 import type { ProductListItem } from '@/entities/product';
 import { Skeleton } from '@/components/ui/skeleton';
+import { ProductCard } from './product-card';
 
-interface ProductListProps {
+type ProductListProps = {
   products: ProductListItem[];
   isLoading?: boolean;
-}
+};
 
 export function ProductList({ products, isLoading }: ProductListProps) {
   if (isLoading) {
@@ -34,10 +34,9 @@ export function ProductList({ products, isLoading }: ProductListProps) {
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-      {products.map((product) => (
+      {products.map(product => (
         <ProductCard key={product.id} product={product} />
       ))}
     </div>
   );
 }
-

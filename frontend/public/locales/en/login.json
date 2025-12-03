@@ -1,8 +1,8 @@
 {
   "title": "Welcome back",
   "sub_title": "Login with your Apple or Google account",
-  "email": "Email",
-  "email_placeholder": "m@example.com",
+  "username": "Username",
+  "username_placeholder": "Enter your username",
   "password": "Password",
   "password_placeholder": "Enter your password",
   "sign_in": "Sign in",

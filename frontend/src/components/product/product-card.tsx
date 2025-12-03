@@ -1,15 +1,14 @@
 'use client';
 
+import type { ProductListItem } from '@/entities/product';
+import { Star } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Star } from 'lucide-react';
-import type { ProductListItem } from '@/entities/product';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 
-interface ProductCardProps {
+type ProductCardProps = {
   product: ProductListItem;
-}
+};
 
 export function ProductCard({ product }: ProductCardProps) {
   const imageUrl = product.images?.[0] || '/placeholder-product.jpg';
@@ -35,13 +34,19 @@ export function ProductCard({ product }: ProductCardProps) {
               <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
               <span className="ml-1 text-sm font-medium">{rating.toFixed(1)}</span>
             </div>
-            <span className="text-sm text-muted-foreground">({reviewCount})</span>
+            <span className="text-sm text-muted-foreground">
+              (
+              {reviewCount}
+              )
+            </span>
           </div>
         </CardContent>
         <CardFooter className="p-4 pt-0">
           <div className="flex items-center justify-between w-full">
             <span className="text-2xl font-bold">
-              {product.currency} {product.price.toFixed(2)}
+              {product.currency}
+              {' '}
+              {product.price.toFixed(2)}
             </span>
           </div>
         </CardFooter>
@@ -49,4 +54,3 @@ export function ProductCard({ product }: ProductCardProps) {
     </Link>
   );
 }
-

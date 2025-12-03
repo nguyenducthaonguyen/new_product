@@ -35,4 +35,3 @@ export const ProductDetailSchema = z.object({
 export type ProductVariant = z.infer<typeof ProductVariantSchema>;
 export type ProductListItem = z.infer<typeof ProductListItemSchema>;
 export type ProductDetail = z.infer<typeof ProductDetailSchema>;
-

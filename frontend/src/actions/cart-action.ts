@@ -1,35 +1,42 @@
 'use server';
 
-import { randomUUID } from 'crypto';
-import { httpClient } from '@/lib/http-client';
-import type { Cart, AddToCartRequest, UpdateCartItemRequest } from '@/entities/cart';
-import { CartSchema } from '@/entities/cart';
+import { randomUUID } from 'node:crypto';
 import { cookies } from 'next/headers';
 
+import type { AddToCartRequest, Cart, SimpleCart, UpdateCartItemRequest } from '@/entities/cart';
+import { CartSchema, SimpleCartSchema } from '@/entities/cart';
+import { httpClient } from '@/lib/http-client';
+
 // Backend API base is already /api, so we use /v1/cart
-const API_BASE = '/v1/cart';
+const API_BASE = '/api/v1/cart';
 
 async function getSessionId(): Promise<string | undefined> {
   // Get session ID from cookies for guest carts
   const cookieStore = await cookies();
-  let sessionId = cookieStore.get('X-Session-ID')?.value;
-  
+  let sessionId = cookieStore.get('session_id')?.value || cookieStore.get('X-Session-ID')?.value;
+
   // If no session ID, generate one and set it (for guest carts)
   if (!sessionId) {
     sessionId = randomUUID();
-    // Note: In server actions, we can't set cookies directly
-    // The session ID will be managed by the client or middleware
+    // Set session_id cookie (valid for 30 days)
+    cookieStore.set('session_id', sessionId, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 60 * 60 * 24 * 30, // 30 days
+      path: '/',
+    });
   }
-  
+
   return sessionId;
 }
 
 async function getAuthHeaders() {
   const cookieStore = await cookies();
   // Try different possible cookie names
-  const token =
-    cookieStore.get('access_token')?.value ||
-    cookieStore.get('ACCESS_TOKEN')?.value;
+  const token
+    = cookieStore.get('access_token')?.value
+      || cookieStore.get('ACCESS_TOKEN')?.value;
   const headers: Record<string, string> = {};
 
   if (token) {
@@ -126,16 +133,33 @@ export async function addToCart(request: AddToCartRequest) {
 
   try {
     const headers = await getAuthHeaders();
-    const response = await httpClient.post<Cart>(`${API_BASE}/items`, request, {
+    // POST /items returns SimpleCartResponse (without items array)
+    const response = await httpClient.post<SimpleCart>(`${API_BASE}/items`, request, {
       headers,
     });
 
     if (response.success && response.data) {
-      const validatedData = CartSchema.parse(response.data);
+      // Parse SimpleCartResponse
+      const simpleCart = SimpleCartSchema.parse(response.data);
+
+      // Fetch full cart to get items array
+      const fullCartResponse = await getCart();
+      if (fullCartResponse.success && fullCartResponse.data) {
+        return {
+          success: true,
+          message: response.message || 'Item added to cart',
+          data: fullCartResponse.data, // Return full cart with all items
+        };
+      }
+
+      // Fallback: return simple cart with empty items
       return {
         success: true,
         message: response.message || 'Item added to cart',
-        data: validatedData,
+        data: {
+          ...simpleCart,
+          items: [],
+        } as Cart,
       };
     }
 
@@ -259,4 +283,3 @@ export async function removeCartItem(itemId: string) {
     };
   }
 }
-

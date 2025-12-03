@@ -1,9 +1,10 @@
 'use client';
 
-import type { LoginFormData } from '@/entities/user';
+import type { LoginFormData, UserResponse } from '@/entities/user';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Eye, EyeOff, Loader2 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import { useRouter } from 'next/navigation';
 
 import { useState, useTransition } from 'react';
 import { useForm } from 'react-hook-form';
@@ -20,9 +21,12 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { createLoginFormSchema } from '@/entities/user';
+import { useUserStore } from '@/stores/user-store';
 
 export default function LoginForm() {
   const t = useTranslations();
+  const router = useRouter();
+  const { setUser } = useUserStore();
   const [isPending, startTransition] = useTransition();
   const [hidePassword, setHidePassword] = useState(true);
   const [serverMessage, setServerMessage] = useState<{ success: boolean; message: string } | null>(
@@ -34,7 +38,7 @@ export default function LoginForm() {
   const form = useForm<LoginFormData>({
     resolver: zodResolver(LoginFormSchema),
     defaultValues: {
-      email: '',
+      username: '',
       password: '',
     },
     mode: 'onBlur',
@@ -45,7 +49,21 @@ export default function LoginForm() {
 
     startTransition(async () => {
       const result = await login(data);
-      setServerMessage(result);
+
+      // If login successful and we have user data, save to Zustand
+      if (result.success && result.data) {
+        setUser(result.data as UserResponse);
+        // Redirect to the URL returned from server
+        if (result.redirectUrl) {
+          router.push(result.redirectUrl);
+        } else {
+          router.push('/');
+        }
+        router.refresh();
+      } else {
+        // Show error message
+        setServerMessage(result);
+      }
     });
   };
 
@@ -61,15 +79,15 @@ export default function LoginForm() {
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
               <FormField
                 control={form.control}
-                name="email"
+                name="username"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>{t('login.email')}</FormLabel>
+                    <FormLabel>{t('login.username')}</FormLabel>
                     <FormControl>
                       <Input
                         {...field}
                         type="text"
-                        placeholder={t('login.email_placeholder')}
+                        placeholder={t('login.username_placeholder')}
                         disabled={isPending}
                       />
                     </FormControl>

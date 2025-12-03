@@ -46,10 +46,21 @@
   - Page: `/` (Home)
   - Layout: Header → Banner → Features → Product List → Testimonials → Footer
 
-- **EP-01-005: Smart Search** ⏳ **PENDING**
-  - **US-SEARCH-01: Tìm kiếm sản phẩm thông minh** ⏳ (Story: `stories/story-006-smart-search.md`)
+- **EP-01-005: Smart Search** ✅ **COMPLETED**
+  - **US-SEARCH-01: Tìm kiếm sản phẩm thông minh** ✅ (Story: `stories/story-006-smart-search.md`)
   - **Feature Spec:** `features/feature-006-smart-search-logic.md`
-  - Search input hiện tại chỉ redirect đến `/search?q={keyword}` (chưa implement search page)
+  - Component: `SearchSuggestions`, `SearchPageClient`
+  - Hook: `useSearchHistory`
+  - Page: `/search?q={keyword}`
+  - API: `GET /api/v1/products?search={keyword}`
+  - Features:
+    - Search input trong header với suggestions dropdown
+    - Search page với results display
+    - Search suggestions: Recent, Popular, Trending
+    - Search history với localStorage (max 5 items)
+    - Debounce input (300ms)
+    - Backend search API (case-insensitive trong name, description, slug)
+    - Auto-save search queries to history
 
 ---
 
@@ -165,23 +176,23 @@
 
 ## 📊 Implementation Summary
 
-### ✅ Completed Features (8/14)
+### ✅ Completed Features (9/14)
 1. **Product Listing** - Homepage và Shop page
 2. **Product Detail View** - Full implementation với variant selection
 3. **Header Navigation** - Complete với user authentication integration
 4. **Homepage Sections** - Banner, Features, Testimonials
-5. **Cart Management** - Full CRUD operations
-6. **Authentication** - Login, Logout, Token Management, Auto-refresh
-7. **About Page** - Static content page
-8. **Contact Page** - With contact form
+5. **Smart Search** - Search page, suggestions, history
+6. **Cart Management** - Full CRUD operations
+7. **Authentication** - Login, Logout, Token Management, Auto-refresh
+8. **About Page** - Static content page
+9. **Contact Page** - With contact form
 
-### ⏳ Pending Features (6/14)
-1. **Smart Search** - Search page chưa implement
-2. **Checkout Process** - Chưa implement
-3. **Guest Checkout** - Chưa implement (nhưng guest cart đã support)
-4. **Profile Management** - Chưa implement
-5. **Order Tracking** - Chưa implement
-6. **Order Cancellation/Return** - Chưa implement
+### ⏳ Pending Features (5/14)
+1. **Checkout Process** - Chưa implement
+2. **Guest Checkout** - Chưa implement (nhưng guest cart đã support)
+3. **Profile Management** - Chưa implement
+4. **Order Tracking** - Chưa implement
+5. **Order Cancellation/Return** - Chưa implement
 
 ### 🛠️ Technical Stack
 - **Frontend Framework:** Next.js 14+ (App Router)
@@ -195,7 +206,9 @@
 ### 📁 Key Components
 - **Layout:** `HomeHeader`, `Banner`, `Footer`
 - **Product:** `ProductList`, `ProductCard`, `ProductDetailView`
+- **Search:** `SearchSuggestions`, `SearchPageClient`
 - **Cart:** `CartView`
 - **Auth:** `LoginForm`, `UserAvatar`
-- **Pages:** Home, Shop, Product Detail, Cart, About, Contact, Login
+- **Hooks:** `useSearchHistory`
+- **Pages:** Home, Shop, Product Detail, Cart, Search, About, Contact, Login
 

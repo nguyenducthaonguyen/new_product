@@ -200,7 +200,13 @@ Navigate to /search?q={suggestion}
 }
 ```
 
-**Note:** Backend API chưa có search endpoint. Cần implement.
+**Note:** 
+- ✅ Backend API đã có search endpoint
+- ✅ `GET /api/v1/products?search={keyword}` hỗ trợ `search`, `offset`, và `limit` parameters
+- ✅ `ProductRepository.get_all(offset, limit, search)` có search filter
+- ✅ `ProductService.list_products(offset, limit, search)` có search parameter
+- ✅ Search logic: Case-insensitive search trong `name`, `description`, và `slug` fields
+- ✅ Uses SQLAlchemy `func.lower()` và `like()` với wildcard `%search_term%`
 
 ### 3.2. Search Suggestions (Future)
 
@@ -228,116 +234,186 @@ Navigate to /search?q={suggestion}
 
 ## 4. 📝 Acceptance Criteria
 
-### 4.1. Search Input (Current)
+### 4.1. Search Input (Current - ✅ Completed)
 - [x] **AC-1.1:** Search input hiển thị trong header với placeholder "Search products..."
 - [x] **AC-1.2:** Search icon hiển thị bên trái input
 - [x] **AC-1.3:** Submit form (Enter) redirect đến `/search?q={keyword}`
 - [x] **AC-1.4:** Search query được encode với encodeURIComponent
 - [x] **AC-1.5:** Empty search query không submit
+- [x] **AC-1.6:** Search input responsive: Ẩn trên mobile (`hidden sm:flex`), hiển thị search icon button
+- [x] **AC-1.7:** Search icon button trên mobile redirect đến `/search` page
 
-### 4.2. Search Page (Pending)
-- [ ] **AC-2.1:** Search page hiển thị tại `/search?q={keyword}`
-- [ ] **AC-2.2:** Page hiển thị Header và Footer
-- [ ] **AC-2.3:** Page hiển thị search query trong heading
-- [ ] **AC-2.4:** API call `GET /api/v1/products?search={keyword}`
-- [ ] **AC-2.5:** Search results hiển thị trong grid layout (giống Product List)
-- [ ] **AC-2.6:** Show số lượng kết quả ("Found X results")
-- [ ] **AC-2.7:** Show "No results found" nếu không có kết quả
-- [ ] **AC-2.8:** Pagination support (future)
+### 4.2. Search Page (✅ Completed)
+- [x] **AC-2.1:** Search page hiển thị tại `/search?q={keyword}`
+- [x] **AC-2.2:** Page hiển thị Header và Footer
+- [x] **AC-2.3:** Page hiển thị search query trong heading
+- [x] **AC-2.4:** API call `GET /api/v1/products?search={keyword}`
+- [x] **AC-2.5:** Search results hiển thị trong grid layout (giống Product List)
+- [x] **AC-2.6:** Show số lượng kết quả ("Found X results")
+- [x] **AC-2.7:** Show "No results found" nếu không có kết quả
+- [x] **AC-2.8:** Auto-save search query vào history
+- [ ] **AC-2.9:** Pagination support (future)
 
-### 4.3. Search Suggestions (Pending)
-- [ ] **AC-3.1:** Dropdown hiển thị khi user nhập ≥ 2 ký tự
-- [ ] **AC-3.2:** Debounce input (300ms) để tránh quá nhiều requests
-- [ ] **AC-3.3:** Show popular searches section
-- [ ] **AC-3.4:** Show recent searches section (từ localStorage)
-- [ ] **AC-3.5:** Show trending searches section
-- [ ] **AC-3.6:** Click suggestion navigate đến `/search?q={suggestion}`
+### 4.3. Search Suggestions (✅ Completed)
+- [x] **AC-3.1:** Dropdown hiển thị khi user click vào search input (ngay lập tức)
+- [x] **AC-3.2:** Dropdown hiển thị khi user nhập ≥ 2 ký tự (filter suggestions)
+- [x] **AC-3.3:** Debounce input (300ms) để tránh quá nhiều requests
+- [x] **AC-3.4:** Show popular searches section
+- [x] **AC-3.5:** Show recent searches section (từ localStorage)
+- [x] **AC-3.6:** Show trending searches section
+- [x] **AC-3.7:** Filter suggestions theo query khi có input
+- [x] **AC-3.8:** Click suggestion navigate đến `/search?q={suggestion}`
+- [x] **AC-3.9:** Auto-close khi click outside hoặc nhấn Escape
+- [x] **AC-3.10:** Auto-save suggestion vào history khi click
 
-### 4.4. Search History (Pending)
-- [ ] **AC-4.1:** Search history lưu trong localStorage
-- [ ] **AC-4.2:** Tối đa 5 items gần đây
-- [ ] **AC-4.3:** Hiển thị history khi user click vào search input
-- [ ] **AC-4.4:** Click history item navigate đến search page
-- [ ] **AC-4.5:** Clear history option (future)
+### 4.4. Search History (✅ Completed)
+- [x] **AC-4.1:** Search history lưu trong localStorage
+- [x] **AC-4.2:** Tối đa 5 items gần đây
+- [x] **AC-4.3:** Hiển thị history khi user click vào search input
+- [x] **AC-4.4:** Click history item navigate đến search page
+- [x] **AC-4.5:** Tự động loại bỏ duplicate trong history
+- [x] **AC-4.6:** Auto-save khi search từ header hoặc search page
+- [ ] **AC-4.7:** Clear history option (future)
 
 ---
 
 ## 5. 🛠️ Implementation Details
 
-### 5.1. Current Implementation
+### 5.1. Search Input in Header (✅ Completed)
 
-**Search Input in Header:**
+**Component:**
 - **File:** `frontend/src/components/home/home-header.tsx`
 - **Type:** Client Component (`'use client'`)
 - **State:**
   - `searchQuery: string` - Search input value
+  - `showSuggestions: boolean` - Control suggestions dropdown visibility
+  - `debouncedQuery: string` - Debounced search query (300ms delay)
 
-- **Function:**
-  - `handleSearch(e)` - Handle form submit, redirect to `/search?q={keyword}`
+- **Functions:**
+  - `handleSearch(e)` - Handle form submit, redirect to `/search?q={keyword}`, save to history
+  - `handleSuggestionSelect(query)` - Handle suggestion click, navigate and save to history
+  - `handleInputFocus()` - Show suggestions when input is focused
+  - `handleInputBlur()` - Hide suggestions when input loses focus (with delay)
+  
+- **Integration:**
+  - Uses `SearchSuggestions` component
+  - Uses `useSearchHistory` hook
+  - Debounce: 300ms delay
+  
+- **Responsive Behavior:**
+  - Desktop/Tablet: Search input hiển thị (`hidden sm:flex`) với suggestions dropdown
+  - Mobile: Search input ẩn, hiển thị search icon button (`sm:hidden`)
+  - Search icon button: Click redirect đến `/search` page
 
-### 5.2. Future Implementation
+- **Implementation Status:**
+  - ✅ Search input trong header
+  - ✅ Form submit với Enter key
+  - ✅ Query encoding
+  - ✅ Empty query validation
+  - ✅ Responsive design
+  - ✅ Search suggestions integration
+  - ✅ Search history integration
 
-**Search Page Component:**
-- **File:** `frontend/src/app/[locale]/search/page.tsx` (to be created)
+### 5.2. Search Page Component (✅ Completed)
+
+**Component:**
+- **File:** `frontend/src/app/[locale]/search/page.tsx`
 - **Type:** Server Component
+- **Status:** ✅ Implemented
 - **Features:**
-  - Extract `q` parameter from URL
-  - Call `getProducts({ search: q })`
-  - Render search results với ProductList component
-  - Show "No results found" if empty
+  - ✅ Extract `q` parameter from URL `searchParams`
+  - ✅ Call `getProducts({ search: q, offset: 0, limit: 50 })`
+  - ✅ Render search results với `ProductList` component
+  - ✅ Show "No results found" if empty
+  - ✅ Hiển thị Header và Footer
+  - ✅ Hiển thị search query trong heading
+  - ✅ Hiển thị số lượng kết quả ("Found X results")
+  - ✅ Dynamic metadata cho SEO
+  - ✅ Client component `SearchPageClient` để auto-save history
 
 **Search Suggestions Component:**
-- **File:** `frontend/src/components/search/search-suggestions.tsx` (to be created)
+- **File:** `frontend/src/components/search/search-suggestions.tsx`
 - **Type:** Client Component
+- **Status:** ✅ Implemented
+- **Props:**
+  - `query: string` - Search query
+  - `isOpen: boolean` - Control dropdown visibility
+  - `onClose: () => void` - Close handler
+  - `onSelect: (query: string) => void` - Selection handler
 - **Features:**
-  - Debounce input
-  - Fetch suggestions (API or static)
-  - Display dropdown với suggestions
-  - Handle click to navigate
+  - ✅ Display dropdown với suggestions
+  - ✅ Show popular searches (static data)
+  - ✅ Show recent searches (từ localStorage via `useSearchHistory`)
+  - ✅ Show trending searches (static data)
+  - ✅ Filter suggestions theo query khi có input
+  - ✅ Show all suggestions khi không có query (click vào input)
+  - ✅ Handle click to navigate và save to history
+  - ✅ Click outside và Escape key để đóng
+  - ✅ Uses `useSearchHistory` hook
 
 **Search History Hook:**
-- **File:** `frontend/src/hooks/use-search-history.ts` (to be created)
+- **File:** `frontend/src/hooks/use-search-history.ts`
 - **Type:** Custom Hook
+- **Status:** ✅ Implemented
 - **Features:**
-  - Save search to localStorage
-  - Get recent searches (max 5)
-  - Clear search history
+  - ✅ Save search to localStorage (key: `'search-history'`)
+  - ✅ Get recent searches (max 5 items)
+  - ✅ Auto-remove duplicates
+  - ✅ Memoized với `useCallback` để tránh infinite loops
+  - ✅ Load history from localStorage on mount
+  - ✅ Functions: `addToHistory()`, `clearHistory()`
+  - ✅ Return: `{ history, addToHistory, clearHistory }`
+
+**Search Page Client Component:**
+- **File:** `frontend/src/components/search/search-page-client.tsx`
+- **Type:** Client Component (`'use client'`)
+- **Status:** ✅ Implemented
+- **Features:**
+  - ✅ Auto-save search query to history when page loads
+  - ✅ Use `useRef` to prevent duplicate saves
+  - ✅ Only save once per unique query
 
 ### 5.3. Server Actions
 
-**getProducts Function (Update):**
+**getProducts Function (✅ Updated):**
 - **File:** `frontend/src/actions/product-action.ts`
-- **Current:** Supports `offset` và `limit` parameters
-- **Future:** Add `search` parameter
+- **Status:** ✅ Updated to support `search` parameter
 - **Signature:**
   ```typescript
   async function getProducts(params?: {
     offset?: number;
     limit?: number;
-    search?: string; // NEW
+    search?: string; // ✅ Added
   })
   ```
+- **Backend API:** ✅ `GET /api/v1/products?search={keyword}` endpoint implemented
 
-### 5.4. Pages
+### 5.4. Backend Implementation
 
-**Search Page (To be created):**
-- **File:** `frontend/src/app/[locale]/search/page.tsx`
-- **Type:** Server Component
-- **Implementation:**
-  ```typescript
-  const searchParams = await props.searchParams;
-  const query = searchParams.q;
-  const result = await getProducts({ search: query });
-  return (
-    <div>
-      <HomeHeader />
-      <h1>Search: {query}</h1>
-      <p>Found {result.data.length} results</p>
-      <ProductList products={result.data} />
-      <Footer />
-    </div>
-  );
-  ```
+**ProductRepository:**
+- **File:** `backend/functions/product_manager/app/repositories/product_repository.py`
+- **Method:** `get_all(offset, limit, search)`
+- **Search Logic:**
+  - Case-insensitive search với `func.lower()`
+  - Search trong `name`, `description`, và `slug` fields
+  - Uses SQLAlchemy `like()` với wildcard `%search_term%`
+
+**ProductService:**
+- **File:** `backend/functions/product_manager/app/services/product_service.py`
+- **Method:** `list_products(offset, limit, search)`
+- **Features:**
+  - Accept optional `search` parameter
+  - Pass to repository
+  - Return `List[ProductDetail]`
+
+**API Endpoint:**
+- **File:** `backend/functions/product_manager/app/api/v1/product.py`
+- **Endpoint:** `GET /api/v1/products?search={keyword}&offset=0&limit=50`
+- **Parameters:**
+  - `search: Optional[str]` - Search keyword (optional)
+  - `offset: int = 0` - Pagination offset
+  - `limit: int = 50` - Number of results
+- **Response:** `{ "success": true, "data": ProductDetail[] }`
 
 ---
 

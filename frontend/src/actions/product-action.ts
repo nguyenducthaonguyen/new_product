@@ -7,7 +7,11 @@ import { httpClient } from '@/lib/http-client';
 // Backend API base is already /api, so we use /v1/products
 const API_BASE = '/api/v1/products';
 
-export async function getProducts(params?: { offset?: number; limit?: number }) {
+export async function getProducts(params?: { 
+  offset?: number; 
+  limit?: number; 
+  search?: string;
+}) {
   try {
     const response = await httpClient.get<ProductListItem[]>(API_BASE, {
       params,

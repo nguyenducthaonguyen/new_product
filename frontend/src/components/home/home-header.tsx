@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Menu, Search, ShoppingCart } from 'lucide-react';
@@ -15,9 +15,11 @@ import {
   SheetTrigger,
 } from '@/components/ui/sheet';
 import { UserAvatar } from '@/components/user/user-avatar';
+import { SearchSuggestions } from '@/components/search/search-suggestions';
 import { useCartStore } from '@/stores/cart-store';
 import { useUserStore } from '@/stores/user-store';
 import { fetchCurrentUser } from '@/lib/client-auth';
+import { useSearchHistory } from '@/hooks/use-search-history';
 
 type HomeHeaderProps = {
   user?: UserResponse | null; // Make optional, we'll use Zustand as primary source
@@ -49,15 +51,59 @@ export function HomeHeader({ user: initialUser }: HomeHeaderProps) {
   }, [zustandUser, hasFetched, setUser]);
 
   const [searchQuery, setSearchQuery] = useState('');
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [debouncedQuery, setDebouncedQuery] = useState('');
+  const searchInputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
   const cart = useCartStore(state => state.cart);
   const cartItemCount = cart?.total_items || 0;
+  const { addToHistory } = useSearchHistory();
+
+  // Debounce search query (300ms)
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedQuery(searchQuery);
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+
+  // Show suggestions when query is >= 2 characters OR when input is focused
+  useEffect(() => {
+    if (debouncedQuery.trim().length >= 2) {
+      setShowSuggestions(true);
+    }
+    // Note: We don't hide suggestions here if query is empty,
+    // because we want to show history when input is focused
+  }, [debouncedQuery]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    if (searchQuery.trim()) {
-      router.push(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
+    const trimmedQuery = searchQuery.trim();
+    if (trimmedQuery) {
+      addToHistory(trimmedQuery);
+      setShowSuggestions(false);
+      router.push(`/search?q=${encodeURIComponent(trimmedQuery)}`);
     }
+  };
+
+  const handleSuggestionSelect = (query: string) => {
+    setSearchQuery(query);
+    setShowSuggestions(false);
+    addToHistory(query);
+    router.push(`/search?q=${encodeURIComponent(query)}`);
+  };
+
+  const handleInputFocus = () => {
+    // Always show suggestions when input is focused (to show history)
+    setShowSuggestions(true);
+  };
+
+  const handleInputBlur = () => {
+    // Delay to allow click on suggestion
+    setTimeout(() => {
+      setShowSuggestions(false);
+    }, 200);
   };
 
   const navLinks = [
@@ -109,13 +155,22 @@ export function HomeHeader({ user: initialUser }: HomeHeaderProps) {
           <form onSubmit={handleSearch} className="hidden sm:flex flex-1 max-w-lg mx-2 sm:mx-4">
             <div className="relative w-full">
               <Input
+                ref={searchInputRef}
                 type="text"
                 placeholder="Search products..."
                 value={searchQuery}
                 onChange={e => setSearchQuery(e.target.value)}
+                onFocus={handleInputFocus}
+                onBlur={handleInputBlur}
                 className="w-full pl-10 pr-4"
               />
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <SearchSuggestions
+                query={debouncedQuery}
+                isOpen={showSuggestions}
+                onClose={() => setShowSuggestions(false)}
+                onSelect={handleSuggestionSelect}
+              />
             </div>
           </form>
 

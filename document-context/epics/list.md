@@ -78,10 +78,10 @@
   - API Endpoints:
     - `GET /api/v1/cart` - Get full cart with all items ✅
     - `POST /api/v1/cart/items` - Add item to cart ✅
-    - `PATCH /api/v1/cart/items/{itemId}` - Update quantity
-    - `DELETE /api/v1/cart/items/{itemId}` - Remove item
+    - `PATCH /api/v1/cart/items/{itemId}` - Update quantity ✅
+    - `DELETE /api/v1/cart/items/{itemId}` - Remove item ✅
   - Features:
-    - View cart với danh sách items, quantity, price
+    - View cart với danh sách items (image, name, SKU, quantity, price, subtotal)
     - Update quantity với +/- buttons
     - Remove item từ cart
     - Cart total calculation
@@ -89,6 +89,7 @@
     - User cart support (user_id)
     - Auto-merge items cùng SKU
     - Real-time cart badge update trên header
+    - Product information (name, image) trong cart items
 
 - **EP-02-002: Checkout Process** ⏳ **PENDING**
   - **US-CHECKOUT-01: Quy trình thanh toán** ⏳ (Story: `stories/story-007-checkout-process.md`)

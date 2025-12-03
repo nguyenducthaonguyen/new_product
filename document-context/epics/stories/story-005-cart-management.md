@@ -92,7 +92,7 @@
 ## 3. Implementation Status
 
 ### ✅ Completed Features
-- **Cart View Component:** Implemented với danh sách items, quantity selector, remove button
+- **Cart View Component:** Implemented với danh sách items (image, name, SKU, quantity, price, subtotal), quantity selector, remove button
 - **Add to Cart:** Tích hợp từ product detail page, tự động fetch full cart sau khi add
 - **Update Quantity:** Nút +/- để tăng/giảm quantity, auto-update cart
 - **Remove Item:** Xóa item khỏi cart
@@ -101,6 +101,8 @@
 - **Guest Cart Support:** Hỗ trợ cart cho guest users với `session_id`
 - **User Cart Support:** Hỗ trợ cart cho authenticated users với `user_id`
 - **Cart Badge:** Real-time update trên header khi cart thay đổi
+- **Product Information:** Cart items hiển thị product image và name từ product relationship
+- **API Endpoints:** Tất cả endpoints (GET, POST, PATCH, DELETE) đã được implement đầy đủ
 
 ### 📝 Technical Notes
 - Component: `CartView` trong `components/cart/cart-view.tsx`
@@ -114,8 +116,8 @@
 - API Endpoints:
   - `GET /api/v1/cart` - Get full cart with all items ✅
   - `POST /api/v1/cart/items` - Add item (returns SimpleCartResponse) ✅
-  - `PATCH /api/v1/cart/items/{itemId}` - Update quantity
-  - `DELETE /api/v1/cart/items/{itemId}` - Remove item
+  - `PATCH /api/v1/cart/items/{itemId}` - Update quantity ✅
+  - `DELETE /api/v1/cart/items/{itemId}` - Remove item ✅
 - Entity: `Cart`, `CartItem` types trong `entities/cart.ts`
 - Authentication: Cart endpoints validate token nếu có, nhưng cho phép guest access
 
@@ -123,4 +125,7 @@
 - **User ID Null Issue:** Fixed AuthMiddleware để validate token cho cart endpoints, đảm bảo `user_id` được set đúng khi user đã login
 - **Session ID Persistence:** Frontend persist `session_id` trong cookie để reuse cart cho guest users
 - **Cart Merge Logic:** Backend tự động merge items cùng SKU vào 1 item với quantity tăng lên
+- **Missing API Endpoints:** Added PATCH và DELETE endpoints cho cart items
+- **itemId Format:** Fixed itemId extraction (item_1 -> 1) trong frontend actions
+- **Product Information:** Added product name và image vào cart items response và UI
 

@@ -2,6 +2,7 @@
 
 import type { Cart } from '@/entities/cart';
 import { Minus, Plus, Trash2 } from 'lucide-react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
@@ -105,13 +106,35 @@ export function CartView({ initialCart }: CartViewProps) {
           {currentCart.items.map(item => (
             <Card key={item.itemId}>
               <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div className="flex-1">
-                    <h3 className="font-semibold mb-1">
+                <div className="flex items-center gap-4">
+                  {/* Product Image */}
+                  {item.image && (
+                    <div className="relative h-20 w-20 flex-shrink-0 rounded-md overflow-hidden border">
+                      <Image
+                        src={item.image}
+                        alt={item.name || item.sku}
+                        fill
+                        className="object-cover"
+                        sizes="80px"
+                      />
+                    </div>
+                  )}
+                  
+                  <div className="flex-1 min-w-0">
+                    {/* Product Name */}
+                    {item.name && (
+                      <h3 className="font-semibold mb-1 truncate">
+                        {item.name}
+                      </h3>
+                    )}
+                    {/* SKU */}
+                    <p className="text-sm text-muted-foreground mb-1">
                       SKU:
+                      {' '}
                       {item.sku}
-                    </h3>
-                    <p className="text-muted-foreground">
+                    </p>
+                    {/* Price per item */}
+                    <p className="text-sm text-muted-foreground">
                       USD
                       {' '}
                       {item.price.toFixed(2)}
@@ -119,6 +142,7 @@ export function CartView({ initialCart }: CartViewProps) {
                       each
                     </p>
                   </div>
+                  
                   <div className="flex items-center gap-4">
                     <div className="flex items-center gap-2">
                       <Button

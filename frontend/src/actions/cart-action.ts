@@ -205,8 +205,13 @@ export async function updateCartItem(itemId: string, request: UpdateCartItemRequ
   }
 
   try {
+    // Extract numeric ID from "item_{id}" format
+    const numericId = itemId.startsWith('item_') 
+      ? itemId.replace('item_', '') 
+      : itemId;
+    
     const headers = await getAuthHeaders();
-    const response = await httpClient.patch<Cart>(`${API_BASE}/items/${itemId}`, request, {
+    const response = await httpClient.patch<Cart>(`${API_BASE}/items/${numericId}`, request, {
       headers,
     });
 
@@ -253,8 +258,13 @@ export async function removeCartItem(itemId: string) {
   }
 
   try {
+    // Extract numeric ID from "item_{id}" format
+    const numericId = itemId.startsWith('item_') 
+      ? itemId.replace('item_', '') 
+      : itemId;
+    
     const headers = await getAuthHeaders();
-    const response = await httpClient.delete<Cart>(`${API_BASE}/items/${itemId}`, {
+    const response = await httpClient.delete<Cart>(`${API_BASE}/items/${numericId}`, {
       headers,
     });
 

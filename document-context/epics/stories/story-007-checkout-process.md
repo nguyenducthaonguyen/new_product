@@ -76,7 +76,7 @@
 ---
 
 ## 2. Business Rules
--   User phải đăng nhập để checkout (hoặc có guest checkout option).
+-   User phải đăng nhập để checkout.
 -   Shipping cost được tính dựa trên shipping method đã chọn.
 -   Order được tạo với status "pending" ban đầu.
 -   Sau khi order thành công, cart được clear.

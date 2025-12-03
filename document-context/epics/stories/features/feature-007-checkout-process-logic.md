@@ -623,7 +623,7 @@ Checkout Page (Server Component)
 
 ## 7. 📚 Related Documentation
 
-- **Story:** [US-CHECKOUT-01: Quy trình thanh toán](../story-007-checkout-process.md)
+- **Story:** [US-CHECKOUT-01: Quy trình than h toán](../story-007-checkout-process.md)
 - **Epic:** [EP-02: Shopping Cart & Checkout](../../list.md#ep-02-shopping-cart--checkout-giỏ-hàng--thanh-toán)
 - **Cart Management:** [FE-CART-001: Cart Management](./feature-005-cart-management-logic.md)
 - **Guest Checkout:** [US-CHECKOUT-02: Thanh toán không cần đăng ký](../story-008-guest-checkout.md)

@@ -40,16 +40,19 @@
 **Item Card Structure:**
 ```
 ┌─────────────────────────────────────────┐
-│ SKU: PROD-001-RED-M                     │
-│ USD 99.99 each                          │
+│ [Image]  Product Name                   │
+│          SKU: PROD-001-RED-M             │
+│          USD 99.99 each                  │
 │                                          │
-│ [-]  2  [+]    USD 199.98    [🗑️]      │
+│          [-]  2  [+]    USD 199.98 [🗑️]│
 └─────────────────────────────────────────┘
 ```
 
 **Item Display:**
-- SKU: `font-semibold mb-1`
-- Price per item: `text-muted-foreground` ("USD {price} each")
+- Product Image: 80x80px thumbnail (first image from product.images)
+- Product Name: `font-semibold mb-1` (truncate if too long)
+- SKU: `text-sm text-muted-foreground mb-1` ("SKU: {sku}")
+- Price per item: `text-sm text-muted-foreground` ("USD {price} each")
 - Quantity selector: `[-] {quantity} [+]` với buttons
 - Subtotal: `font-semibold` ("USD {price * quantity}")
 - Remove button: Trash icon, `text-destructive`
@@ -342,7 +345,9 @@ Cart Page (Server Component)
         "itemId": "item_1",
         "sku": "PROD-001-RED-M",
         "quantity": 2,
-        "price": 99.99
+        "price": 99.99,
+        "name": "Product Name",
+        "image": "https://example.com/image.jpg"
       }
     ]
   }
@@ -363,6 +368,8 @@ CartItem {
   sku: string;
   quantity: number;
   price: number; // Decimal as number
+  name: string | null; // Product name (optional)
+  image: string | null; // Product image URL (optional, first image from product.images)
 }
 ```
 
@@ -410,7 +417,7 @@ CartItem {
 
 ### 3.3. Update Cart Item
 
-**Endpoint:** `PATCH /api/v1/cart/items/{itemId}`
+**Endpoint:** `PATCH /api/v1/cart/items/{item_id}` ✅ **IMPLEMENTED**
 
 **Request Headers:**
 - `Authorization: Bearer {access_token}` (optional)
@@ -438,12 +445,16 @@ CartItem {
         "itemId": "item_1",
         "sku": "PROD-001-RED-M",
         "quantity": 3,
-        "price": 99.99
+        "price": 99.99,
+        "name": "Product Name",
+        "image": "https://example.com/image.jpg"
       }
     ]
   }
 }
 ```
+
+**Note:** Frontend extracts numeric ID from `itemId` format ("item_1" -> 1) before calling API.
 
 **Error Responses:**
 - **400:** Bad Request (quantity < 1)
@@ -453,7 +464,7 @@ CartItem {
 
 ### 3.4. Remove Cart Item
 
-**Endpoint:** `DELETE /api/v1/cart/items/{itemId}`
+**Endpoint:** `DELETE /api/v1/cart/items/{item_id}` ✅ **IMPLEMENTED**
 
 **Request Headers:**
 - `Authorization: Bearer {access_token}` (optional)
@@ -473,12 +484,16 @@ CartItem {
         "itemId": "item_2",
         "sku": "PROD-002-BLUE-L",
         "quantity": 1,
-        "price": 99.99
+        "price": 99.99,
+        "name": "Product Name",
+        "image": "https://example.com/image.jpg"
       }
     ]
   }
 }
 ```
+
+**Note:** Frontend extracts numeric ID from `itemId` format ("item_1" -> 1) before calling API.
 
 **Error Responses:**
 - **404:** Item not found
@@ -492,7 +507,7 @@ CartItem {
 - [x] **AC-1.1:** Cart page hiển thị Header và Footer
 - [x] **AC-1.2:** Cart page hiển thị "Shopping Cart" heading
 - [x] **AC-1.3:** Cart items hiển thị trong grid layout (2/3 width desktop, full width mobile)
-- [x] **AC-1.4:** Each item hiển thị: SKU, price per item, quantity, subtotal, remove button
+- [x] **AC-1.4:** Each item hiển thị: image, name, SKU, price per item, quantity, subtotal, remove button
 - [x] **AC-1.5:** Order Summary hiển thị: subtotal, total, checkout button, continue shopping button
 - [x] **AC-1.6:** Totals calculated correctly (total_items, total_price)
 
@@ -572,8 +587,17 @@ CartItem {
   - `useState` - Track updating items
 
 - **Key Functions:**
-  - `handleUpdateQuantity(itemId, newQuantity)` - Update item quantity
-  - `handleRemoveItem(itemId)` - Remove item from cart
+  - `handleUpdateQuantity(itemId, newQuantity)` - Update item quantity (extracts numeric ID from itemId format)
+  - `handleRemoveItem(itemId)` - Remove item from cart (extracts numeric ID from itemId format)
+
+- **UI Features:**
+  - Product image thumbnail (80x80px, first image from product.images)
+  - Product name display (truncated if too long)
+  - SKU display
+  - Price per item
+  - Quantity selector với +/- buttons
+  - Subtotal calculation
+  - Remove button (trash icon)
 
 ### 5.2. Server Actions
 
@@ -599,14 +623,16 @@ CartItem {
 - **File:** `frontend/src/actions/cart-action.ts`
 - **Type:** Server Action (`'use server'`)
 - **Features:**
-  - Call `PATCH /api/v1/cart/items/{itemId}` với new quantity
-  - Return full cart with updated items
+  - Extract numeric ID from `itemId` format ("item_1" -> 1)
+  - Call `PATCH /api/v1/cart/items/{numericId}` với new quantity
+  - Return full cart with updated items (including name and image)
 
 **removeCartItem Function:**
 - **File:** `frontend/src/actions/cart-action.ts`
 - **Type:** Server Action (`'use server'`)
 - **Features:**
-  - Call `DELETE /api/v1/cart/items/{itemId}`
+  - Extract numeric ID from `itemId` format ("item_1" -> 1)
+  - Call `DELETE /api/v1/cart/items/{numericId}`
   - Return full cart without removed item
 
 **Helper Functions:**
@@ -671,6 +697,8 @@ CartItem {
   sku: string;
   quantity: number;
   price: number;
+  name: string | null; // Product name (optional)
+  image: string | null; // Product image URL (optional)
 }
 ```
 

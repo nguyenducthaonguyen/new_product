@@ -5,6 +5,8 @@ export const CartItemSchema = z.object({
   sku: z.string(),
   quantity: z.number(),
   price: z.number(),
+  name: z.string().nullable().optional(),
+  image: z.string().nullable().optional(),
 });
 
 export const CartSchema = z.object({

@@ -19,11 +19,16 @@ Mục tiêu là xây dựng một hệ thống có khả năng scale lớn, hỗ
 | :--- | :--- | :--- |
 | **SKU (Stock Keeping Unit)** | Mã định danh duy nhất cho từng biến thể sản phẩm (VD: Áo thun - Size M - Màu Đỏ). | Mã phân loại hàng hóa |
 | **Variant** | Một phiên bản cụ thể của sản phẩm (theo Size, Color, Material). | Biến thể |
-| **Cart (Session Cart)** | Giỏ hàng tạm thời, lưu trữ phía Client hoặc Redis, có thể merge khi login. | Giỏ hàng |
+| **Cart (Session Cart)** | Giỏ hàng tạm thời, lưu trữ trong Database với `user_id` (authenticated) hoặc `session_id` (guest), có thể merge khi login. | Giỏ hàng |
 | **Checkout** | Quy trình thanh toán: Shipping -> Payment -> Review -> Place Order. | Thanh toán |
 | **Order** | Đơn hàng đã được tạo thành công. Có trạng thái (Pending, Processing, Shipped...). | Đơn hàng |
 | **Payment Gateway** | Cổng thanh toán bên thứ 3 (Stripe, PayPal, VNPay). | Cổng thanh toán |
 | **Inventory** | Số lượng tồn kho khả dụng của một SKU. | Tồn kho |
+| **Stock** | Số lượng hàng tồn kho của một variant (SKU). | Tồn kho |
+| **Guest Cart** | Giỏ hàng của người dùng chưa đăng nhập, được track bằng `session_id` trong cookie. | Giỏ hàng khách |
+| **User Cart** | Giỏ hàng của người dùng đã đăng nhập, được track bằng `user_id`. | Giỏ hàng người dùng |
+| **Access Token** | JWT token dùng để xác thực API requests, có thời hạn 15 phút, lưu trong HttpOnly cookie. | Token truy cập |
+| **Refresh Token** | JWT token dùng để refresh access token, có thời hạn 7 ngày, lưu trong HttpOnly cookie. | Token làm mới |
 | **Flash Sale** | Chương trình khuyến mãi giảm giá sâu trong thời gian ngắn. | Bán hàng chớp nhoáng |
 
 ## 4. 🔄 Core Business Flows (Luồng nghiệp vụ chính)

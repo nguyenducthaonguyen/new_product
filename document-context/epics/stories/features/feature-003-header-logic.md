@@ -9,50 +9,84 @@
 
 ### 1.1. Layout Structure
 
-**Header Layout:**
+**Header Layout (Desktop):**
 ```
 ┌─────────────────────────────────────────────────────────────────┐
 │ [NEXUS]  [Search Input...]  [Shop] [About] [Contact]  [🛒] [👤] │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
+**Header Layout (Mobile):**
+```
+┌─────────────────────────────────────────┐
+│ [☰] [NEXUS]  [🔍] [🛒] [👤]              │
+└─────────────────────────────────────────┘
+```
+
+**Header Layout (Tablet):**
+```
+┌─────────────────────────────────────────────────────┐
+│ [☰] [NEXUS]  [Search Input...]  [🛒] [👤]          │
+└─────────────────────────────────────────────────────┘
+```
+
 **Component Structure:**
 ```
-HomeHeader
-├── Logo (Link to /)
-├── Search Form (flex-1, max-w-lg)
-│   └── Search Input + Search Icon
-├── Navigation Links (hidden md:flex)
-│   ├── Shop
-│   ├── About
-│   └── Contact
-└── Right Side Actions
-    ├── Cart Icon (with badge)
-    └── User Avatar (if logged in) OR Login Button (if not logged in)
+HomeHeader (sticky top-0 z-50)
+├── Container (container mx-auto px-4)
+│   └── Flex Container (flex h-16 items-center justify-between)
+│       ├── Mobile Menu Button (lg:hidden)
+│       │   └── Sheet Component
+│       │       ├── SheetTrigger (Menu icon button)
+│       │       └── SheetContent (side="left", w-64)
+│       │           ├── SheetHeader (Menu title)
+│       │           └── Navigation Links (vertical list)
+│       ├── Logo (Link to /)
+│       │   └── Text "NEXUS" (text-xl sm:text-2xl)
+│       ├── Search Form (hidden sm:flex, flex-1 max-w-lg)
+│       │   └── Search Input + Search Icon
+│       ├── Navigation Links (hidden lg:flex, desktop only)
+│       │   ├── Shop (px-4 py-2, rounded, hover effects)
+│       │   ├── About (px-4 py-2, rounded, hover effects)
+│       │   └── Contact (px-4 py-2, rounded, hover effects)
+│       └── Right Side Actions
+│           ├── Search Icon Button (sm:hidden, mobile only)
+│           ├── Cart Icon (with badge)
+│           └── User Avatar (if logged in) OR Login Button (if not logged in)
 ```
 
 **Responsive Layout:**
-- **Desktop (≥ 768px):** Full layout với navigation links visible
-- **Mobile (< 768px):** Navigation links hidden, chỉ hiển thị logo, search, cart, avatar/login
+- **Mobile (< 640px):** Menu button + Logo + Search icon + Cart + Avatar/Login
+- **Tablet (640px - 1023px):** Menu button + Logo + Search input + Cart + Avatar/Login
+- **Desktop (≥ 1024px):** Logo + Search input + Navigation links + Cart + Avatar/Login
 
 ### 1.2. Logo Design
 
 **Display:**
 - Text: "NEXUS"
-- Size: `text-2xl` (24px)
+- Size: `text-xl` (20px) trên mobile, `text-2xl` (24px) trên tablet+
 - Weight: `font-bold`
 - Color: `text-gray-900`
 - Link: Navigate to `/` (home page)
 - Position: Left side, `flex-shrink-0`
+- Responsive: `text-xl sm:text-2xl`
 
 ### 1.3. Search Input Design
 
-**Layout:**
-- Position: Center-left, `flex-1 max-w-lg mx-4`
+**Desktop/Tablet Layout:**
+- Position: Center-left, `flex-1 max-w-lg mx-2 sm:mx-4`
+- Visibility: `hidden sm:flex` (ẩn trên mobile)
 - Input: Full width với padding left for icon
 - Icon: Search icon (Lucide) absolute left, `h-4 w-4`
 - Placeholder: "Search products..."
 - Submit: Form submit on Enter key
+
+**Mobile Layout:**
+- Search Input: Ẩn hoàn toàn
+- Search Icon Button: Hiển thị thay thế (`sm:hidden`)
+- Icon: Search icon (Lucide), `h-5 w-5`
+- Click: Redirect đến `/search` page
+- Style: `w-10 h-10 rounded-full hover:bg-gray-100`
 
 **States:**
 - **Default:** Border, focus ring
@@ -61,12 +95,35 @@ HomeHeader
 
 ### 1.4. Navigation Links Design
 
-**Layout:**
-- Display: Horizontal flex, `gap-6`
-- Visibility: Hidden on mobile (`hidden md:flex`)
+**Desktop Layout (≥ 1024px):**
+- Display: Horizontal flex, `gap-2`
+- Visibility: `hidden lg:flex` (chỉ hiển thị trên desktop)
 - Links: Shop, About, Contact
-- Style: `text-sm font-medium text-gray-600 hover:text-gray-900`
-- Transition: Color transition on hover
+- Style: 
+  - Padding: `px-4 py-2`
+  - Rounded: `rounded-md`
+  - Text: `text-sm font-medium text-gray-700`
+  - Hover: `hover:text-gray-900 hover:bg-gray-100`
+  - Active: `active:bg-gray-200`
+  - Transition: `transition-all duration-200`
+
+**Mobile/Tablet Layout (< 1024px):**
+- Display: Vertical list trong Sheet menu
+- Visibility: Menu button (`lg:hidden`) mở Sheet từ trái
+- Links: Shop, About, Contact
+- Style:
+  - Padding: `px-4 py-3`
+  - Rounded: `rounded-lg`
+  - Text: `text-base font-medium text-gray-900`
+  - Hover: `hover:bg-gray-100 hover:text-gray-900`
+  - Active: `active:bg-gray-200`
+  - Transition: `transition-all duration-200`
+  - Gap: `gap-2` giữa các links
+- Sheet Menu:
+  - Width: `w-64`
+  - Side: `left` (slide-in từ trái)
+  - Title: "Menu" (`text-xl font-bold`)
+  - Auto-close: Đóng khi click vào link
 
 ### 1.5. Cart Icon Design
 
@@ -108,7 +165,27 @@ HomeHeader
 - Variant: `outline`
 - Size: `sm`
 - Text: "Login"
+- Text Size: `text-xs sm:text-sm` (responsive)
 - Link: Navigate to `/login`
+- Visibility: Chỉ hiển thị khi `mounted === true` (tránh hydration issues)
+
+### 1.8. Mobile Menu Design
+
+**Menu Button:**
+- Icon: Menu (Lucide), `h-5 w-5`
+- Container: `w-10 h-10 rounded-full hover:bg-gray-100`
+- Position: Trước logo, `lg:hidden` (chỉ hiển thị trên mobile/tablet)
+- Click: Mở Sheet menu từ bên trái
+
+**Sheet Menu:**
+- Component: Radix UI Sheet (via shadcn/ui)
+- Side: `left` (slide-in từ trái)
+- Width: `w-64` (256px)
+- Animation: Slide-in animation với overlay
+- Content:
+  - Header: "Menu" title (`text-xl font-bold`)
+  - Navigation Links: Vertical list với padding và hover effects
+  - Auto-close: Đóng khi click vào link hoặc overlay
 
 ---
 
@@ -352,11 +429,13 @@ Display Avatar
 ## 4. 📝 Acceptance Criteria
 
 ### 4.1. Header Layout
-- [x] **AC-1.1:** Header hiển thị trên cùng một hàng với logo, search, navigation, cart, avatar/login
-- [x] **AC-1.2:** Logo "NEXUS" link về home page (`/`)
-- [x] **AC-1.3:** Search input ở center-left với search icon
-- [x] **AC-1.4:** Navigation links (Shop, About, Contact) hiển thị trên desktop, ẩn trên mobile
-- [x] **AC-1.5:** Cart icon và avatar/login button ở góc phải
+- [x] **AC-1.1:** Header sticky với `sticky top-0 z-50` để luôn hiển thị khi scroll
+- [x] **AC-1.2:** Container với padding (`container mx-auto px-4`) để tránh overflow
+- [x] **AC-1.3:** Logo "NEXUS" link về home page (`/`), responsive size (`text-xl sm:text-2xl`)
+- [x] **AC-1.4:** Search input ở center-left với search icon (ẩn trên mobile, hiển thị search icon button)
+- [x] **AC-1.5:** Navigation links (Shop, About, Contact) hiển thị trên desktop (`lg:flex`), menu button trên mobile/tablet
+- [x] **AC-1.6:** Cart icon và avatar/login button ở góc phải
+- [x] **AC-1.7:** Responsive gaps: `gap-2` trên mobile, `gap-4` trên tablet+
 
 ### 4.2. Search Functionality
 - [x] **AC-2.1:** Search input có placeholder "Search products..."
@@ -365,10 +444,14 @@ Display Avatar
 - [x] **AC-2.4:** Empty search query không submit
 
 ### 4.3. Navigation Links
-- [x] **AC-3.1:** Click "Shop" navigate đến `/shop`
-- [x] **AC-3.2:** Click "About" navigate đến `/about`
-- [x] **AC-3.3:** Click "Contact" navigate đến `/contact`
-- [x] **AC-3.4:** Links có hover effect (color transition)
+- [x] **AC-3.1:** Desktop: Navigation links hiển thị với padding (`px-4 py-2`), rounded, hover background
+- [x] **AC-3.2:** Mobile/Tablet: Menu button mở Sheet menu từ trái với navigation links
+- [x] **AC-3.3:** Click "Shop" navigate đến `/shop`
+- [x] **AC-3.4:** Click "About" navigate đến `/about`
+- [x] **AC-3.5:** Click "Contact" navigate đến `/contact`
+- [x] **AC-3.6:** Links có hover effect (background color + text color transition)
+- [x] **AC-3.7:** Links có active state (`active:bg-gray-200`)
+- [x] **AC-3.8:** Sheet menu tự động đóng khi click vào link
 
 ### 4.4. Cart Icon
 - [x] **AC-4.1:** Cart icon hiển thị với ShoppingCart icon
@@ -387,8 +470,9 @@ Display Avatar
 - [x] **AC-5.7:** Dropdown có "Logout All" option
 
 ### 4.6. Login Button (Unauthenticated)
-- [x] **AC-6.1:** Login button hiển thị khi user chưa đăng nhập
+- [x] **AC-6.1:** Login button hiển thị khi user chưa đăng nhập (chỉ khi mounted)
 - [x] **AC-6.2:** Click Login navigate đến `/login`
+- [x] **AC-6.3:** Login button responsive text size (`text-xs sm:text-sm`)
 
 ### 4.7. User State Management
 - [x] **AC-7.1:** Check Zustand store trước khi gọi API
@@ -413,19 +497,21 @@ Display Avatar
   }
   ```
 - **State:**
-  - `mounted: boolean` - Component mounted state
+  - `mounted: boolean` - Component mounted state (for hydration)
   - `hasFetched: boolean` - Prevent multiple API calls
+  - `menuOpen: boolean` - Mobile menu open state
   - `searchQuery: string` - Search input value
 
 - **Hooks:**
   - `useUserStore` - Get/set user from Zustand store
   - `useCartStore` - Get cart for badge count
   - `useRouter` - Navigation
-  - `useEffect` - Fetch user on mount
+  - `useEffect` - Fetch user on mount, set mounted state
 
 - **Key Functions:**
   - `handleSearch(e)` - Handle search form submit
   - `fetchCurrentUser()` - Fetch user from API if needed
+  - `setMenuOpen(open)` - Control mobile menu state
 
 **UserAvatar Component:**
 - **File:** `frontend/src/components/user/user-avatar.tsx`
@@ -523,25 +609,40 @@ Display Avatar
 ## 6. ✅ Testing Checklist
 
 ### 6.1. Functional Tests
-- [ ] Header hiển thị trên tất cả pages (trừ Login)
-- [ ] Logo link về home page
-- [ ] Search submit redirect đến `/search?q={keyword}`
-- [ ] Navigation links navigate correctly
-- [ ] Cart badge hiển thị correct count
-- [ ] Cart badge updates real-time
-- [ ] User avatar hiển thị khi logged in
-- [ ] Login button hiển thị khi not logged in
-- [ ] User dropdown menu opens và displays correctly
-- [ ] Logout clears user và redirects
+- [x] Header sticky và luôn hiển thị khi scroll
+- [x] Header hiển thị trên tất cả pages (trừ Login)
+- [x] Logo link về home page, responsive size
+- [x] Search input submit redirect đến `/search?q={keyword}` (tablet+)
+- [x] Search icon button redirect đến `/search` (mobile)
+- [x] Mobile menu button mở Sheet menu từ trái
+- [x] Navigation links trong Sheet menu navigate correctly
+- [x] Navigation links trên desktop navigate correctly
+- [x] Sheet menu tự động đóng khi click link
+- [x] Cart badge hiển thị correct count (chỉ khi mounted)
+- [x] Cart badge updates real-time
+- [x] User avatar hiển thị khi logged in (chỉ khi mounted)
+- [x] Login button hiển thị khi not logged in (chỉ khi mounted)
+- [x] User dropdown menu opens và displays correctly
+- [x] Logout clears user và redirects
 
 ### 6.2. UI/UX Tests
-- [ ] Header layout responsive (navigation links ẩn on mobile)
-- [ ] Search input focus state works
-- [ ] Cart icon hover effect works
-- [ ] Avatar dropdown positioning correct
-- [ ] Badge hiển thị "99+" khi > 99 items
-- [ ] Avatar fallback to initials works
-- [ ] Navigation links hover effect works
+- [x] Header layout responsive (mobile, tablet, desktop)
+- [x] Sticky header works correctly
+- [x] Container padding prevents overflow
+- [x] Mobile menu Sheet slide-in animation works
+- [x] Navigation links có padding và hover effects (desktop)
+- [x] Navigation links trong Sheet menu có padding và hover effects
+- [x] Logo responsive size (text-xl trên mobile, text-2xl trên tablet+)
+- [x] Search input ẩn trên mobile, hiển thị trên tablet+
+- [x] Search icon button hiển thị trên mobile
+- [x] Search input focus state works
+- [x] Cart icon hover effect works
+- [x] Avatar dropdown positioning correct
+- [x] Badge hiển thị "99+" khi > 99 items
+- [x] Avatar fallback to initials works
+- [x] Navigation links hover effect works (background + text color)
+- [x] Navigation links active state works
+- [x] Transitions smooth (duration-200)
 
 ### 6.3. State Management Tests
 - [ ] User state cached trong Zustand store

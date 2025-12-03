@@ -9,8 +9,8 @@ Nó định nghĩa bản đồ tài liệu và **Quy trình 2 Bước** để si
 | :--- | :--- | :--- |
 | **1. Business Core** | `business/domain-overview.md` | **[MUST READ]** Mục tiêu dự án, vai trò user, thuật ngữ nghiệp vụ. |
 | **2. Rules & Guidelines** | `guidelines/tech-standards.md` | **[MUST READ]** Tech stack, quy ước code, cấu trúc thư mục. |
-| **3. API Specs** | `api/backend-specs.md` | Backend contracts, endpoints. |
-| **4. Epics & Stories** | `epics/` | Phân rã yêu cầu (Requirements breakdown). |
+| **3. API Specs** | `api/backend-specs.md` | **[MUST READ]** Backend contracts, endpoints, request/response formats. |
+| **4. Epics & Stories** | `epics/` | **[MUST READ]** Phân rã yêu cầu (Requirements breakdown). Xem `epics/list.md` để biết implementation status. |
 | **5. Templates** | `templates/` | Các mẫu chuẩn cho output của AI. |
 
 ---
@@ -62,17 +62,27 @@ document-context/
 ├── epics/                        # Phân rã yêu cầu
 │   ├── list.md                   # Danh sách Epic (với implementation status)
 │   └── stories/                  # User Stories (Cái "What")
-│       ├── story-001-product-detail.md ✅ COMPLETED
-│       ├── story-002-auth-login.md ✅ COMPLETED
-│       ├── story-003-header.md ✅ COMPLETED
-│       ├── story-004-cart-management.md ✅ COMPLETED
+│       ├── story-001-product-listing.md ✅ COMPLETED
+│       ├── story-002-product-detail.md ✅ COMPLETED
+│       ├── story-003-header-navigation.md ✅ COMPLETED
+│       ├── story-004-homepage-sections.md ✅ COMPLETED
+│       ├── story-005-cart-management.md ✅ COMPLETED
+│       ├── story-006-smart-search.md ⏳ PENDING
+│       ├── story-007-checkout-process.md ⏳ PENDING
+│       ├── story-008-guest-checkout.md ⏳ PENDING
+│       ├── story-009-about-page.md ✅ COMPLETED
+│       ├── story-010-contact-page.md ✅ COMPLETED
 │       └── features/             # Feature Specs (Cái "How")
-│           ├── feature-001-product-detail-logic.md  # Business Logic & Data
-│           ├── feature-001-product-detail-ui.md     # UI/UX Specs
-│           ├── feature-002-auth-login-logic.md     # Login Logic
-│           ├── feature-002-auth-login-ui.md         # Login UI
-│           ├── feature-003-header-logic.md          # Header Logic
-│           └── feature-003-header-ui.md             # Header UI
+│           ├── feature-001-product-listing-logic.md ✅
+│           ├── feature-002-product-detail-logic.md ✅
+│           ├── feature-003-header-logic.md ✅
+│           ├── feature-004-homepage-sections-logic.md ✅
+│           ├── feature-005-cart-management-logic.md ✅
+│           ├── feature-006-smart-search-logic.md ⏳
+│           ├── feature-007-checkout-process-logic.md ⏳
+│           ├── feature-008-guest-checkout-logic.md ⏳
+│           ├── feature-009-about-page-logic.md ✅
+│           └── feature-010-contact-page-logic.md ✅
 ├── templates/                    # Các template chuẩn
 │   ├── TASK_IMPLEMENTATION_TEMPLATE.md
 │   └── FEATURE_SPEC_TEMPLATE.md

@@ -7,12 +7,14 @@
 ### Feature / User Stories
 - **EP-01-001: Product Listing** ✅ **COMPLETED**
   - **US-PROD-01: Hiển thị danh sách sản phẩm** ✅ (Story: `stories/story-001-product-listing.md`)
+  - **Feature Spec:** `features/feature-001-product-listing-logic.md`
   - Component: `ProductList`, `ProductCard`
   - Page: `/` (Home), `/shop`
   - API: `GET /api/v1/products`
 
 - **EP-01-002: Product Detail View** ✅ **COMPLETED**
   - **US-PROD-02: Xem chi tiết sản phẩm** ✅ (Story: `stories/story-002-product-detail.md`)
+  - **Feature Spec:** `features/feature-002-product-detail-logic.md`
   - Component: `ProductDetailView`
   - Page: `/products/[slug]`
   - API: `GET /api/v1/products/{slug}`
@@ -26,6 +28,7 @@
 
 - **EP-01-003: Header Navigation** ✅ **COMPLETED**
   - **US-NAV-01: Header Navigation với Search và User Menu** ✅ (Story: `stories/story-003-header-navigation.md`)
+  - **Feature Spec:** `features/feature-003-header-logic.md`
   - Component: `HomeHeader`, `UserAvatar`
   - Used in: Home, Shop, About, Contact, Product Detail, Cart
   - Features:
@@ -38,12 +41,14 @@
 
 - **EP-01-004: Homepage Sections** ✅ **COMPLETED**
   - **US-HOME-01: Homepage Sections (Banner, Features, Testimonials)** ✅ (Story: `stories/story-004-homepage-sections.md`)
+  - **Feature Spec:** `features/feature-004-homepage-sections-logic.md`
   - Components: `Banner`, `Features`, `Testimonials`
   - Page: `/` (Home)
   - Layout: Header → Banner → Features → Product List → Testimonials → Footer
 
 - **EP-01-005: Smart Search** ⏳ **PENDING**
   - **US-SEARCH-01: Tìm kiếm sản phẩm thông minh** ⏳ (Story: `stories/story-006-smart-search.md`)
+  - **Feature Spec:** `features/feature-006-smart-search-logic.md`
   - Search input hiện tại chỉ redirect đến `/search?q={keyword}` (chưa implement search page)
 
 ---
@@ -55,6 +60,7 @@
 ### Feature / User Stories
 - **EP-02-001: Cart Management** ✅ **COMPLETED**
   - **US-CART-01: Quản lý giỏ hàng** ✅ (Story: `stories/story-005-cart-management.md`)
+  - **Feature Spec:** `features/feature-005-cart-management-logic.md`
   - Component: `CartView`
   - Page: `/cart`
   - Store: `cart-store.ts` (Zustand với persistence)
@@ -75,11 +81,13 @@
 
 - **EP-02-002: Checkout Process** ⏳ **PENDING**
   - **US-CHECKOUT-01: Quy trình thanh toán** ⏳ (Story: `stories/story-007-checkout-process.md`)
+  - **Feature Spec:** `features/feature-007-checkout-process-logic.md`
   - Nhập địa chỉ, chọn shipping method, thanh toán, xác nhận đơn
   - Chưa implement
 
 - **EP-02-003: Guest Checkout** ⏳ **PENDING**
   - **US-CHECKOUT-02: Thanh toán không cần đăng ký** ⏳ (Story: `stories/story-008-guest-checkout.md`)
+  - **Feature Spec:** `features/feature-008-guest-checkout-logic.md`
   - Chưa implement (nhưng guest cart đã được hỗ trợ)
 
 ---
@@ -139,11 +147,13 @@
 ### Feature / User Stories
 - **EP-05-001: About Page** ✅ **COMPLETED**
   - **US-STATIC-01: Trang giới thiệu** ✅ (Story: `stories/story-009-about-page.md`)
+  - **Feature Spec:** `features/feature-009-about-page-logic.md`
   - Page: `/about`
   - Layout: Header → Banner → About Content → Footer
 
 - **EP-05-002: Contact Page** ✅ **COMPLETED**
   - **US-STATIC-02: Trang liên hệ** ✅ (Story: `stories/story-010-contact-page.md`)
+  - **Feature Spec:** `features/feature-010-contact-page-logic.md`
   - Component: `ContactForm`
   - Page: `/contact`
   - Layout: Header → Banner → Contact Info Cards → Contact Form → Footer
